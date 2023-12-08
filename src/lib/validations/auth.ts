@@ -23,7 +23,7 @@ export const authSchema = z.object({
   phone: z
     .string()
     .min(10, { message: "Phone must be at least 10 characters long" }),
-  referral: z.string().optional(),
+  referral: z.string(),
 })
 
 export const signUpSchema = z
@@ -31,10 +31,10 @@ export const signUpSchema = z
     name: authSchema.shape.name,
     email: authSchema.shape.email,
     password: authSchema.shape.password,
-    confirmPassword: authSchema.shape.password,
+    confirmPassword: authSchema.shape.password.optional(),
     address: authSchema.shape.address,
     phone: authSchema.shape.phone,
-    referral: authSchema.shape.referral,
+    referral: authSchema.shape.referral.optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -44,8 +44,4 @@ export const signUpSchema = z
 export const signInSchema = z.object({
   email: authSchema.shape.email,
   password: authSchema.shape.password,
-})
-
-export const userSchema = z.object({
-  role: z.enum(["user", "admin", "super_admin"]),
 })
