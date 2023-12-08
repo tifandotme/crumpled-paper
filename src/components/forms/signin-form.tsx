@@ -1,8 +1,14 @@
+import React from "react"
+import { useRouter } from "next/router"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import type { z } from "zod"
+import toast from "react-hot-toast"
 
-import { authSchema } from "@/lib/validations/auth"
+import type { SignInInputs } from "@/types"
+import { setCookie } from "@/lib/cookie"
+import { getUser } from "@/lib/fetchers"
+import { useStore } from "@/lib/store"
+import { signInSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -16,20 +22,41 @@ import { Input } from "@/components/ui/input"
 import { Icons } from "@/components/icons"
 import { PasswordInput } from "@/components/password-input"
 
-type Inputs = z.infer<typeof authSchema>
-
 export function SignInForm() {
-  const form = useForm<Inputs>({
-    resolver: zodResolver(authSchema),
+  const [isLoading, setIsLoading] = React.useState(false)
+  const updateUser = useStore((state) => state.updateUser)
+
+  const router = useRouter()
+
+  const form = useForm<SignInInputs>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   })
 
-  function onSubmit(data: Inputs) {
-    console.log(data)
+  const onSubmit = async (data: SignInInputs) => {
+    setIsLoading(true)
+
+    const { success, message, data: user } = await getUser(data)
+
+    success ? toast.success(message) : toast.error(message)
+
+    setIsLoading(false)
+
+    if (success && user) {
+      updateUser(user)
+      setCookie("token", user.token)
+      setCookie("role", user.role)
+
+      router.push("/")
+    }
   }
+
+  React.useEffect(() => {
+    form.setFocus("email")
+  }, [form])
 
   return (
     <Form {...form}>
@@ -63,8 +90,8 @@ export function SignInForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={false}>
-          {false && (
+        <Button type="submit" disabled={isLoading}>
+          {isLoading && (
             <Icons.Spinner
               className="mr-2 h-4 w-4 animate-spin"
               aria-hidden="true"

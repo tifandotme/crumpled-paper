@@ -1,8 +1,11 @@
 import React from "react"
+import { useRouter } from "next/router"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import type { z } from "zod"
+import toast from "react-hot-toast"
 
+import type { SignUpInputs } from "@/types"
+import { registerUser } from "@/lib/fetchers"
 import { signUpSchema } from "@/lib/validations/auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,12 +20,12 @@ import { Input } from "@/components/ui/input"
 import { Icons } from "@/components/icons"
 import { PasswordInput } from "@/components/password-input"
 
-type Inputs = z.infer<typeof signUpSchema>
-
 export function SignUpForm() {
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const form = useForm<Inputs>({
+  const router = useRouter()
+
+  const form = useForm<SignUpInputs>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
@@ -35,11 +38,23 @@ export function SignUpForm() {
     },
   })
 
-  function onSubmit(data: Inputs) {
-    console.log(data)
-    
-    
+  const onSubmit = async (data: SignUpInputs) => {
+    setIsLoading(true)
+
+    const { success, message } = await registerUser(data)
+
+    success ? toast.success(message) : toast.error(message)
+
+    setIsLoading(false)
+
+    if (success) {
+      router.push("/signin")
+    }
   }
+
+  React.useEffect(() => {
+    form.setFocus("name")
+  }, [form])
 
   return (
     <Form {...form}>
@@ -54,7 +69,12 @@ export function SignUpForm() {
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="John Doe" {...field} />
+                <Input
+                  type="text"
+                  placeholder="John Doe"
+                  autoFocus
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -138,15 +158,15 @@ export function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={false}>
-          {false && (
+        <Button type="submit" disabled={isLoading}>
+          {isLoading && (
             <Icons.Spinner
               className="mr-2 h-4 w-4 animate-spin"
               aria-hidden="true"
             />
           )}
           Sign up
-          <span className="sr-only">Sign in</span>
+          <span className="sr-only">Sign up</span>
         </Button>
       </form>
     </Form>
