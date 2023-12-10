@@ -1,6 +1,4 @@
-import { AvatarIcon, ImageIcon } from "@radix-ui/react-icons"
-
-type IconProps = React.HTMLAttributes<SVGElement>
+type IconProps = React.SVGAttributes<SVGElement>
 
 export const Icons = {
   Logo: (props: IconProps) => (
@@ -30,6 +28,19 @@ export const Icons = {
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   ),
-  Avatar: AvatarIcon,
-  Placeholder: ImageIcon,
+  Credit: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" x2="22" y1="10" y2="10" />
+    </svg>
+  ),
 }

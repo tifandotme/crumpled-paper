@@ -1,11 +1,11 @@
 import type { SignInInputs, SignUpInputs } from "@/types"
-import type { User } from "@/types/db"
+import type { User } from "@/types/api"
 import { generateUUID } from "@/lib/utils"
 
-type Response<T = undefined> = {
+type Response<TData = unknown> = {
   success: boolean
   message: string
-  data?: T
+  data?: TData
 }
 
 export async function getUser(payload: SignInInputs): Promise<Response<User>> {
@@ -32,7 +32,7 @@ export async function getUser(payload: SignInInputs): Promise<Response<User>> {
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : "",
+      message: error instanceof Error ? error.message : "Something went wrong",
     }
   }
 }
@@ -50,7 +50,7 @@ export async function registerUser(payload: SignUpInputs): Promise<Response> {
 
     delete payload.confirmPassword
 
-    const url = new URL("/users", process.env.NEXT_PUBLIC_DB_URL as string)
+    const url = new URL("/users", process.env.NEXT_PUBLIC_DB_URL)
     const options: RequestInit = {
       method: "POST",
       headers: {
@@ -76,7 +76,7 @@ export async function registerUser(payload: SignUpInputs): Promise<Response> {
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : "",
+      message: error instanceof Error ? error.message : "Something went wrong",
     }
   }
 }
