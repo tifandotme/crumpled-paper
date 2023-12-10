@@ -4,7 +4,7 @@ import { fonts } from "@/lib/fonts"
 
 export default function Document() {
   return (
-    <Html lang="en" suppressHydrationWarning>
+    <Html lang="en">
       <Head />
       <body className={fonts.map((font) => font.className).join(" ")}>
         <Main />

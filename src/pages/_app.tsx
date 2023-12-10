@@ -11,9 +11,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
   React.useEffect(() => {
     useStore.persist.rehydrate()
-    useStore.persist.onFinishHydration((state) => {
-      state.loading = false
-    })
   }, [])
 
   return (
