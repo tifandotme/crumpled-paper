@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 
 import { create } from "zustand"
-import { createJSONStorage, devtools, persist } from "zustand/middleware"
+import { devtools, persist } from "zustand/middleware"
 
-import type { User } from "@/types/db"
+import type { User } from "@/types/api"
 
 type State = {
   loading: boolean
@@ -20,11 +20,17 @@ export const useStore = create<State & Actions>()(
       (set) => ({
         loading: true,
         user: null,
+
         updateUser: (user) => set(() => ({ user })),
       }),
       {
         name: "userStorage",
-        storage: createJSONStorage(() => sessionStorage),
+        partialize: (state) => ({ user: state.user }),
+        onRehydrateStorage: () => (state) => {
+          if (state) {
+            state.loading = false
+          }
+        },
         skipHydration: true,
       },
     ),
