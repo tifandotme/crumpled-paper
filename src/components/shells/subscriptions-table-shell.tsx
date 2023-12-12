@@ -17,21 +17,7 @@ import {
 import { DataTable } from "@/components/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 
-// export async function fetcher<TData>(endpoint: string): Promise<TData> {
-//   const url = new URL(endpoint, process.env.NEXT_PUBLIC_DB_URL)
-//   const res = await fetch(url)
-
-//   return res.json()
-// }
-
 export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
-  // const { data: users } = useSWR("/users", fetcher<User[]>, {
-  //   revalidateOnFocus: false,
-  //   revalidateOnMount: false,
-
-  //   suspense: true,
-  // })
-
   const data = users.map((user) => ({
     id: user.id,
     name: user.name,
@@ -156,6 +142,7 @@ export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
   const deleteSelectedRow = () => {
     console.log("deleteSelectedRows")
   }
+
   return (
     <DataTable
       columns={columns}
@@ -177,10 +164,6 @@ export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
         {
           id: "email",
           title: "Email",
-        },
-        {
-          id: "name",
-          title: "Name",
         },
       ]}
       deleteRowsAction={deleteSelectedRow}
