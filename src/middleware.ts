@@ -12,6 +12,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(request.nextUrl.origin)
   }
 
+  if (request.nextUrl.pathname === "/dashboard") {
+    return NextResponse.redirect(request.nextUrl.origin + "/dashboard/account")
+  }
+
+  if (request.nextUrl.pathname === "/dashboard/users") {
+    return NextResponse.redirect(
+      request.nextUrl.origin + "/dashboard/users/subscriptions",
+    )
+  }
+
   return NextResponse.next()
 }
 
