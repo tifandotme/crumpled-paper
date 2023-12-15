@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import { SignUpForm } from "@/components/forms/signup-form"
 import { AuthLayout } from "@/components/layouts/auth"
-import { Shell } from "@/components/shells/shell"
+import { Shell } from "@/components/shell"
 
 export default function SignUpPage() {
   return (

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card"
 import { SignInForm } from "@/components/forms/signin-form"
 import { AuthLayout } from "@/components/layouts/auth"
-import { Shell } from "@/components/shells/shell"
+import { Shell } from "@/components/shell"
 
 export default function SignInPage() {
   return (

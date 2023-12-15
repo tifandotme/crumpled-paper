@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 import { create } from "zustand"
 import { devtools, persist } from "zustand/middleware"
 

@@ -3,23 +3,10 @@ import useSWR from "swr"
 
 import type { User } from "@/types/api"
 import { fetcher } from "@/lib/fetchers"
-import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton"
+import { DataTableSkeleton } from "@/components/ui/data-table/data-table-skeleton"
 import { DashboardLayout } from "@/components/layouts/dashboard"
 import { UsersLayout } from "@/components/layouts/users"
-import { SubscriptionsTableShell } from "@/components/shells/subscriptions-table-shell"
-
-// export const getServerSideProps: GetServerSideProps<{
-//   users: User[]
-// }> = async () => {
-//   const url = new URL("/users", process.env.NEXT_PUBLIC_DB_URL)
-//   const res = await fetch(url)
-
-//   return {
-//     props: {
-//       users: await res.json(),
-//     },
-//   }
-// }
+import { SubscriptionsTable } from "@/components/tables/subscriptions-table"
 
 export default function SubscriptionsPage() {
   const { data, isLoading } = useSWR("/users", fetcher<User[]>, {
@@ -32,14 +19,8 @@ export default function SubscriptionsPage() {
         <h2 className="text-2xl font-bold tracking-tight">Subscriptions</h2>
       </div>
 
-      {isLoading && (
-        <DataTableSkeleton
-          columnCount={6}
-          isNewRowCreatable={true}
-          isRowsDeletable={true}
-        />
-      )}
-      {!isLoading && data && <SubscriptionsTableShell data={data} />}
+      {isLoading && <DataTableSkeleton columnCount={7} />}
+      {!isLoading && data && <SubscriptionsTable data={data} />}
     </div>
   )
 }

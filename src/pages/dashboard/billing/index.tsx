@@ -1,7 +1,7 @@
 import React from "react"
 import { CheckIcon } from "@radix-ui/react-icons"
 
-import { subscriptionPlans } from "@/config/subscriptions"
+import { subscriptionPlans } from "@/config"
 import { useStore } from "@/lib/store"
 import { cn, formatDate, formatPrice } from "@/lib/utils"
 import {
@@ -20,7 +20,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "@/components/page-header"
-import { Shell } from "@/components/shells/shell"
+import { Shell } from "@/components/shell"
 
 export default function BillingPage() {
   const { loading, user } = useStore(({ loading, user }) => ({ loading, user }))
