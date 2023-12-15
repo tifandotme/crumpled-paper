@@ -76,7 +76,7 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center space-x-2">
-        {deleteRowsAction && table.getSelectedRowModel().rows.length > 0 ? (
+        {deleteRowsAction && table.getSelectedRowModel().rows.length > 0 && (
           <Button
             aria-label="Delete selected rows"
             variant="outline"
@@ -92,7 +92,7 @@ export function DataTableToolbar<TData>({
             <TrashIcon className="mr-2 h-4 w-4" aria-hidden="true" />
             Delete
           </Button>
-        ) : null}
+        )}
         <DataTableViewOptions table={table} />
       </div>
     </div>

@@ -194,11 +194,11 @@ export function PostForm({ mode, initialData }: PostFormProps) {
             )}
             {toSentenceCase(mode)} post
           </Button>
-          {mode === "edit" ? (
+          {mode === "edit" && (
             <Button type="button" variant="destructive" className="w-fit">
               Delete
             </Button>
-          ) : null}
+          )}
         </div>
       </form>
     </Form>

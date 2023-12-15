@@ -29,23 +29,21 @@ export function DataTableSkeleton({
     <div className="w-full space-y-3 overflow-auto">
       <div className="flex w-full items-center justify-between space-x-2 overflow-auto p-1">
         <div className="flex flex-1 items-center space-x-2">
-          {searchableFieldCount > 0
-            ? Array.from({ length: searchableFieldCount }).map((_, i) => (
-                <Skeleton key={i} className="h-7 w-[150px] lg:w-[250px]" />
-              ))
-            : null}
-          {filterableFieldCount > 0
-            ? Array.from({ length: filterableFieldCount }).map((_, i) => (
-                <Skeleton key={i} className="h-7 w-[70px] border-dashed" />
-              ))
-            : null}
+          {searchableFieldCount > 0 &&
+            Array.from({ length: searchableFieldCount }).map((_, i) => (
+              <Skeleton key={i} className="h-7 w-[150px] lg:w-[250px]" />
+            ))}
+          {filterableFieldCount > 0 &&
+            Array.from({ length: filterableFieldCount }).map((_, i) => (
+              <Skeleton key={i} className="h-7 w-[70px] border-dashed" />
+            ))}
         </div>
         <div className="flex items-center space-x-2">
           {isRowsDeletable ? (
             <Skeleton className="h-7 w-[70px]" />
-          ) : isNewRowCreatable ? (
-            <Skeleton className="h-7 w-[70px]" />
-          ) : null}
+          ) : (
+            isNewRowCreatable && <Skeleton className="h-7 w-[70px]" />
+          )}
           <Skeleton className="ml-auto hidden h-7 w-[70px] lg:flex" />
         </div>
       </div>
