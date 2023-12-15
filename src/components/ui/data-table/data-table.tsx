@@ -17,6 +17,8 @@ import type {
   DataTableFilterableColumn,
   DataTableSearchableColumn,
 } from "@/types"
+import { DataTablePagination } from "@/components/ui/data-table/data-table-pagination"
+import { DataTableToolbar } from "@/components/ui/data-table/data-table-toolbar"
 import {
   Table,
   TableBody,
@@ -25,8 +27,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { DataTablePagination } from "@/components/data-table/data-table-pagination"
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

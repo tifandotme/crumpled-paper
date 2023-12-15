@@ -7,9 +7,9 @@ import type {
   DataTableSearchableColumn,
 } from "@/types"
 import { Button } from "@/components/ui/button"
+import { DataTableFilter } from "@/components/ui/data-table/data-table-filter"
+import { DataTableViewOptions } from "@/components/ui/data-table/data-table-view-options"
 import { Input } from "@/components/ui/input"
-import { DataTableFilter } from "@/components/data-table/data-table-filter"
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>

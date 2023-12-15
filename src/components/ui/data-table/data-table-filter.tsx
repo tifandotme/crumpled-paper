@@ -1,4 +1,3 @@
-import React from "react"
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons"
 import type { Column } from "@tanstack/react-table"
 
@@ -114,12 +113,6 @@ export function DataTableFilter<TData, TValue>({
                     >
                       <CheckIcon className={cn("h-4 w-4")} aria-hidden="true" />
                     </div>
-                    {option.icon && (
-                      <option.icon
-                        className="mr-2 h-4 w-4 text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                    )}
                     <span>{option.label}</span>
                   </CommandItem>
                 )
