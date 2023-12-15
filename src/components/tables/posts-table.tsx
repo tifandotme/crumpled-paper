@@ -3,10 +3,13 @@ import Link from "next/link"
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import type { ColumnDef } from "@tanstack/react-table"
 
-import type { User } from "@/types/api"
-import { formatDate } from "@/lib/utils"
+import type { Post } from "@/types/api"
+import { postCategories } from "@/config"
+import { cn, formatDate } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { DataTable } from "@/components/ui/data-table/data-table"
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,18 +17,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DataTable } from "@/components/data-table/data-table"
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 
-export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
-  const data = users.map((user) => ({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    plan: user.subscription.type,
-    expiryDate: user.subscription.expiryDate,
-    phone: user.phone,
-    address: user.address,
+export function PostsTable({ data: posts }: { data: Post[] }) {
+  const data = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    isPremium: post.isPremium ? "premium" : "free",
+    category: post.category,
+    likes: post.likes,
+    updatedAt: post.updatedAt,
+    createdAt: post.createdAt,
   }))
 
   type Data = (typeof data)[number]
@@ -33,24 +34,43 @@ export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
   const columns = React.useMemo<ColumnDef<Data, unknown>[]>(
     () => [
       {
-        accessorKey: "name",
+        accessorKey: "title",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Name" />
+          <DataTableColumnHeader
+            column={column}
+            title="Title"
+            className="min-w-[28ch]"
+          />
         ),
       },
       {
-        accessorKey: "email",
+        accessorKey: "isPremium",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Email" />
-        ),
-      },
-      {
-        accessorKey: "plan",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Plan" />
+          <DataTableColumnHeader column={column} title="Type" />
         ),
         cell: ({ cell }) => {
-          const category = cell.getValue() as Data["plan"]
+          const type = cell.getValue() as Data["isPremium"]
+
+          return (
+            <Badge
+              variant="outline"
+              className={cn(type === "premium" && "border-0 bg-yellow-200")}
+            >
+              {type}
+            </Badge>
+          )
+        },
+        filterFn: (row, id, value) => {
+          return value.includes(row.getValue(id))
+        },
+      },
+      {
+        accessorKey: "category",
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Category" />
+        ),
+        cell: ({ cell }) => {
+          const category = cell.getValue() as Data["category"]
 
           return (
             <Badge variant="outline" className="capitalize">
@@ -63,31 +83,26 @@ export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
         },
       },
       {
-        accessorKey: "expiryDate",
+        accessorKey: "updatedAt",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Expiry Date" />
+          <DataTableColumnHeader column={column} title="Last Updated" />
         ),
         cell: ({ cell }) => {
-          const date = cell.getValue() as Data["expiryDate"]
-
-          if (date === null) {
-            return <span>-</span>
-          }
+          const date = cell.getValue() as Data["updatedAt"]
 
           return <span>{formatDate(date)}</span>
         },
       },
       {
-        accessorKey: "phone",
+        accessorKey: "createdAt",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Phone" />
+          <DataTableColumnHeader column={column} title="Created At" />
         ),
-      },
-      {
-        accessorKey: "address",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Address" />
-        ),
+        cell: ({ cell }) => {
+          const date = cell.getValue() as Data["createdAt"]
+
+          return <span>{formatDate(date)}</span>
+        },
       },
       {
         id: "actions",
@@ -150,20 +165,32 @@ export function SubscriptionsTableShell({ data: users }: { data: User[] }) {
       pageCount={Math.ceil(data.length / 10)}
       filterableColumns={[
         {
-          id: "plan",
-          title: "Status",
-          options: (["free", "monthly", "yearly"] as Data["plan"][]).map(
-            (item) => ({
-              label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
-              value: item,
-            }),
-          ),
+          id: "category",
+          title: "Category",
+          options: postCategories.map((item) => ({
+            label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
+            value: item,
+          })),
+        },
+        {
+          id: "isPremium",
+          title: "Type",
+          options: [
+            {
+              label: "Free",
+              value: "free",
+            },
+            {
+              label: "Premium ✨",
+              value: "premium",
+            },
+          ],
         },
       ]}
       searchableColumns={[
         {
-          id: "email",
-          title: "Email",
+          id: "title",
+          title: "Title",
         },
       ]}
       deleteRowsAction={deleteSelectedRow}
