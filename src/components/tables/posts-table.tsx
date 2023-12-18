@@ -2,9 +2,12 @@ import React from "react"
 import Link from "next/link"
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import type { ColumnDef } from "@tanstack/react-table"
+import toast from "react-hot-toast"
+import { mutate } from "swr"
 
 import type { Post } from "@/types/api"
 import { postCategories } from "@/config"
+import { deletePost } from "@/lib/fetchers"
 import { cn, formatDate } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -117,32 +120,27 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
                 <DotsHorizontalIcon className="h-4 w-4" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
+            <DropdownMenuContent align="end" className="w-[130px]">
               <DropdownMenuItem asChild>
-                <Link href="/">Approve</Link>
+                <Link href="/">View</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/">Reject</Link>
+                <Link href={`/dashboard/posts/edit/${row.original.id}`}>
+                  Edit
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => {
-                  // startTransition(() => {
-                  //   row.toggleSelected(false)
-                  //   toast.promise(
-                  //     deleteProduct({
-                  //       id: row.original.id,
-                  //       storeId,
-                  //     }),
-                  //     {
-                  //       loading: "Deleting...",
-                  //       success: () => "Product deleted successfully.",
-                  //       error: (err: unknown) => catchError(err),
-                  //     },
-                  //   )
-                  // })
+                className="text-destructive focus:text-destructive"
+                onClick={async () => {
+                  await toast.promise(deletePost(row.original.id), {
+                    loading: "Deleting post...",
+                    success: (data) => data.message,
+                    error: (err) => err.message,
+                  })
+
+                  await mutate("/posts")
                 }}
-                disabled={true}
               >
                 Delete
               </DropdownMenuItem>
@@ -153,10 +151,6 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
     ],
     [],
   )
-
-  const deleteSelectedRow = () => {
-    console.log("deleteSelectedRows")
-  }
 
   return (
     <DataTable
@@ -193,7 +187,6 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
           title: "Title",
         },
       ]}
-      deleteRowsAction={deleteSelectedRow}
     />
   )
 }

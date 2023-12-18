@@ -1,4 +1,4 @@
-import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons"
+import { CheckIcon } from "@radix-ui/react-icons"
 import type { Column } from "@tanstack/react-table"
 
 import type { Option } from "@/types"
@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { Icons } from "@/components/icons"
 
 interface DataTableFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
@@ -43,7 +44,7 @@ export function DataTableFilter<TData, TValue>({
           size="sm"
           className="h-8 border-dashed"
         >
-          <PlusCircledIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+          <Icons.Filter className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
           {title}
           {selectedValues?.size > 0 && (
             <>

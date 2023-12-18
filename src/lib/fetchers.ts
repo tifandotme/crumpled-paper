@@ -9,6 +9,10 @@ export async function fetcher<TData>(endpoint: string): Promise<TData> {
   const url = new URL(endpoint, process.env.NEXT_PUBLIC_DB_URL)
   const res = await fetch(url)
 
+  if (!res.ok) {
+    throw new Error("Failed to fetch at " + endpoint)
+  }
+
   return res.json()
 }
 
@@ -134,7 +138,7 @@ export async function updatePost(
     }
 
     const url = new URL(
-      `/posts/${mode === "add" ? id : ""}`,
+      `/posts/${mode === "edit" ? id : ""}`,
       process.env.NEXT_PUBLIC_DB_URL,
     )
     const options: RequestInit = {
@@ -146,8 +150,8 @@ export async function updatePost(
         ...data,
         image: convertedImage,
         likes: mode === "add" ? 0 : undefined,
-        createdAt: mode === "add" ? new Date() : undefined,
-        updatedAt: new Date(),
+        updatedAt: new Date().toString(),
+        createdAt: mode === "add" ? new Date().toString() : undefined,
       } satisfies Partial<Omit<Post, "id">>),
     }
 
@@ -160,6 +164,31 @@ export async function updatePost(
     return {
       success: true,
       message: `Post ${mode === "add" ? "added" : "updated"}`,
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : "Something went wrong",
+    }
+  }
+}
+
+export async function deletePost(id: number): Promise<Response> {
+  try {
+    const url = new URL(`/posts/${id}`, process.env.NEXT_PUBLIC_DB_URL)
+    const options: RequestInit = {
+      method: "DELETE",
+    }
+
+    const res = await fetch(url, options)
+
+    if (!res.ok) {
+      throw new Error("Failed to delete a post")
+    }
+
+    return {
+      success: true,
+      message: `Post deleted`,
     }
   } catch (err) {
     return {

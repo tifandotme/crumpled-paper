@@ -140,10 +140,6 @@ export function SubscriptionsTable({ data: users }: { data: User[] }) {
     [],
   )
 
-  const deleteSelectedRow = () => {
-    console.log("deleteSelectedRows")
-  }
-
   return (
     <DataTable
       columns={columns}
@@ -165,7 +161,6 @@ export function SubscriptionsTable({ data: users }: { data: User[] }) {
           title: "Email",
         },
       ]}
-      deleteRowsAction={deleteSelectedRow}
     />
   )
 }

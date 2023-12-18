@@ -1,5 +1,5 @@
 import React from "react"
-import { Cross2Icon, TrashIcon } from "@radix-ui/react-icons"
+import { Cross2Icon } from "@radix-ui/react-icons"
 import type { Table } from "@tanstack/react-table"
 
 import type {
@@ -15,17 +15,14 @@ interface DataTableToolbarProps<TData> {
   table: Table<TData>
   filterableColumns?: DataTableFilterableColumn<TData>[]
   searchableColumns?: DataTableSearchableColumn<TData>[]
-  deleteRowsAction?: React.MouseEventHandler<HTMLButtonElement>
 }
 
 export function DataTableToolbar<TData>({
   table,
   filterableColumns = [],
   searchableColumns = [],
-  deleteRowsAction,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
-  const [isPending, startTransition] = React.useTransition()
 
   return (
     <div className="flex w-full items-center justify-between space-x-2 overflow-auto p-1">
@@ -76,23 +73,6 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center space-x-2">
-        {deleteRowsAction && table.getSelectedRowModel().rows.length > 0 && (
-          <Button
-            aria-label="Delete selected rows"
-            variant="outline"
-            size="sm"
-            className="h-8"
-            onClick={(event) => {
-              startTransition(() => {
-                deleteRowsAction(event)
-              })
-            }}
-            disabled={isPending}
-          >
-            <TrashIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-            Delete
-          </Button>
-        )}
         <DataTableViewOptions table={table} />
       </div>
     </div>
