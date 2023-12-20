@@ -74,6 +74,7 @@ export function PostActions({ post }: PostActionsProps) {
       {
         optimisticData: {
           ...post,
+          likers,
           shareCount: shareCount + 1,
         },
         revalidate: false,

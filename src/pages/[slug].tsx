@@ -8,12 +8,12 @@ import { ImageIcon } from "@radix-ui/react-icons"
 import Balancer from "react-wrap-balancer"
 
 import type { Post } from "@/types/api"
-import { formatDate, readingTime } from "@/lib/utils"
+import { formatDate, readingTime, toSentenceCase } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
 import { RootLayout } from "@/components/layouts/root"
 import { PostActions } from "@/components/post-actions"
+import { RecommendedPosts } from "@/components/recommended-posts"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const url = new URL("/posts", process.env.NEXT_PUBLIC_DB_URL)
@@ -74,16 +74,16 @@ export default function PostPage({
         </AspectRatio>
       </section>
 
-      <section className="container mb-10 max-w-screen-md space-y-10 lg:max-w-screen-lg">
+      <section className="container mb-10 max-w-screen-md space-y-7 lg:max-w-screen-lg">
         {post.isPremium && (
-          <div className="mb-5 text-center">
+          <div className="text-center">
             <Badge className="bg-yellow-600 text-sm hover:bg-yellow-700">
               Premium
             </Badge>
           </div>
         )}
 
-        <div className="mb-10 w-full px-2 text-center md:px-10">
+        <div className="mb-10 mt-0 w-full px-2 text-center md:px-10">
           <Balancer
             as="h1"
             className="text-center text-3xl font-bold md:text-4xl lg:text-5xl"
@@ -98,6 +98,10 @@ export default function PostPage({
             &bull;
           </span>
           <span>{readingTime(post.content)} min read</span>
+          <span className="select-none text-xs text-muted-foreground">
+            &bull;
+          </span>
+          <Badge variant="outline">{toSentenceCase(post.category)}</Badge>
         </div>
       </section>
 
@@ -113,39 +117,7 @@ export default function PostPage({
         <PostActions post={post} />
       </section>
 
-      <section className="container mb-10 max-w-screen-lg">
-        <h2 className="mb-5 text-center text-xl font-semibold uppercase text-muted-foreground">
-          Recommended posts
-        </h2>
-        <div className="flex gap-4">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Card key={index} className="w-full p-6">
-              <AspectRatio ratio={16 / 10}>
-                <Image
-                  src="https://placehold.co/1600x1000"
-                  alt=""
-                  width={1600}
-                  height={1000}
-                  sizes="33vw"
-                  className="absolute aspect-[16/10] object-cover"
-                />
-              </AspectRatio>
-              <div className="mt-4">
-                <h3 className="text-lg font-bold">
-                  Lorem ipsum dolor sit amet
-                </h3>
-                <div className="mt-2 flex items-center text-muted-foreground">
-                  <time dateTime="2021-06-01">June 1, 2021</time>
-                  <span className="select-none text-xs text-muted-foreground">
-                    &bull;
-                  </span>
-                  <span>5 min read</span>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <RecommendedPosts currPostId={post.id} />
     </>
   )
 }
