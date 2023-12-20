@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast"
 
 import type { AppPropsWithLayout } from "@/types/next"
 import { useStore } from "@/lib/store"
+import { BreakpointIndicator } from "@/components/breakpoint-indicator"
 
 import "@/styles/globals.css"
 
@@ -18,6 +19,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       {getLayout(<Component {...pageProps} />)}
 
       <Toaster />
+      <BreakpointIndicator />
     </>
   )
 }

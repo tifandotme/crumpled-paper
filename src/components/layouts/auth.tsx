@@ -4,7 +4,6 @@ import Link from "next/link"
 import { siteConfig } from "@/config"
 import authBg from "@/assets/images/auth-bg.jpg"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { BreakpointIndicator } from "@/components/breakpoint-indicator"
 import { Icons } from "@/components/icons"
 
 export function AuthLayout({ children }: React.PropsWithChildren) {
@@ -13,7 +12,7 @@ export function AuthLayout({ children }: React.PropsWithChildren) {
       <AspectRatio ratio={16 / 9}>
         <Image
           src={authBg}
-          alt="Newspapers stacked on a tray"
+          alt="Magazines displayed on a rack"
           fill
           className="absolute bottom-0 object-cover"
           priority
@@ -33,7 +32,7 @@ export function AuthLayout({ children }: React.PropsWithChildren) {
         <div className="absolute bottom-6 left-8 z-20 line-clamp-1 hidden text-base md:block">
           <span>Photo by&nbsp;</span>
           <a
-            href="https://unsplash.com/@markusspiske?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
+            href="https://unsplash.com/photos/magazines-displayed-on-a-rack-2G8mnFvH8xk"
             className="hover:underline"
             rel="noopener noreferrer"
           >
@@ -45,8 +44,6 @@ export function AuthLayout({ children }: React.PropsWithChildren) {
       <main className="container absolute top-16 col-span-1 flex items-center md:static md:top-0 md:col-span-2 md:translate-y-0 lg:col-span-1">
         {children}
       </main>
-
-      <BreakpointIndicator />
     </div>
   )
 }
