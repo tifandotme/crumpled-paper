@@ -1,9 +1,11 @@
 import React from "react"
-import toast from "react-hot-toast"
-import QRCode from "react-qr-code"
+import type { KeyedMutator } from "swr"
 
 import type { SubscriptionPlan } from "@/types"
-import { formatPrice } from "@/lib/utils"
+import type { Transaction } from "@/types/api"
+import { addTransaction } from "@/lib/fetchers"
+import { useStore } from "@/lib/store"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,32 +16,34 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Icons } from "@/components/icons"
+import { PaymentPage } from "@/components/payment-page"
 
 interface ManageSubscriptionFormProps {
   plan: SubscriptionPlan
   isCurrentPlan: boolean
   isSubscribed: boolean
+  invoice?: Transaction
+  mutate: KeyedMutator<Transaction | undefined>
 }
 
 export function ManageSubscriptionForm({
   plan,
   isCurrentPlan,
   isSubscribed,
+  invoice,
+  mutate,
 }: ManageSubscriptionFormProps) {
   const [isPaymentPageOpen, setIsPaymentPageOpen] = React.useState(false)
-
-  const textContent = isCurrentPlan
-    ? "You are subscribed. You can cancel your subscription at any time."
-    : "If you wish to subscribe to this plan, proceed to the payment page."
-
-  const buttonLabel = isCurrentPlan ? "Cancel subscription" : "Proceed"
 
   return (
     <Dialog onOpenChange={(open) => !open && setIsPaymentPageOpen(false)}>
       <DialogTrigger asChild>
         <Button
           className="w-full"
-          disabled={isSubscribed && plan.id === "free"}
+          disabled={
+            (isSubscribed && plan.id === "free") ||
+            (!isCurrentPlan && Boolean(invoice))
+          }
         >
           {isCurrentPlan ? "Manage" : "Subscribe"}
         </Button>
@@ -50,40 +54,85 @@ export function ManageSubscriptionForm({
             {isCurrentPlan ? "Manage subscription" : "Subscribe"}
           </DialogTitle>
         </DialogHeader>
-        {isPaymentPageOpen ? (
-          <>
-            <p className="text-center text-lg font-semibold">
-              Total: {formatPrice(plan.price)}
-            </p>
-            <p className="text-center italic text-muted-foreground">
-              You will be automatically redirected once the amount is paid
-            </p>
-            <span className="inline-flex items-center justify-center gap-2 text-accent-foreground">
-              <Icons.Spinner className="inline-block h-4 w-4 animate-spin" />
-              Awaiting payment..
-            </span>
-            <div className="mx-auto my-4 bg-white p-1">
-              <QRCode value="https://www.google.com" />
-            </div>
-          </>
+        {isPaymentPageOpen && invoice ? (
+          <PaymentPage invoice={invoice} />
         ) : (
-          textContent
+          <MainPage
+            plan={plan}
+            isCurrentPlan={isCurrentPlan}
+            setIsPaymentPageOpen={setIsPaymentPageOpen}
+            mutate={mutate}
+          />
         )}
-        <DialogFooter className="sm:justify-end">
-          <Button
-            type="button"
-            onClick={() => {
-              if (isCurrentPlan) {
-                toast.success("Subscription cancelled")
-              } else {
-                setIsPaymentPageOpen((prev) => !prev)
-              }
-            }}
-          >
-            {isPaymentPageOpen ? "Cancel" : buttonLabel}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
+  )
+}
+
+interface MainPageProps {
+  isCurrentPlan: boolean
+  plan: SubscriptionPlan
+  setIsPaymentPageOpen: React.Dispatch<React.SetStateAction<boolean>>
+  mutate: KeyedMutator<Transaction | undefined>
+}
+
+function MainPage({
+  isCurrentPlan,
+  plan,
+  setIsPaymentPageOpen,
+  mutate,
+}: MainPageProps) {
+  const user = useStore((state) => state.user)
+  const [isLoading, setIsLoading] = React.useState(false)
+
+  const handleCancelation = async () => {
+    if (!user) return
+
+    setIsLoading(true)
+    console.log("canceling subscription")
+    setIsLoading(false)
+  }
+
+  const handlePayment = async () => {
+    if (!user) return
+
+    setIsLoading(true)
+    await addTransaction(user.id, plan.id)
+    await mutate()
+    setIsLoading(false)
+
+    setIsPaymentPageOpen(true)
+  }
+
+  return (
+    <>
+      <p>
+        {isCurrentPlan
+          ? "You are subscribed. You can cancel your subscription at any time."
+          : "If you wish to subscribe to this plan, proceed to the payment page."}
+      </p>
+
+      <DialogFooter className="sm:justify-end">
+        <Button
+          onClick={async () => {
+            if (isCurrentPlan) {
+              await handleCancelation()
+            } else {
+              await handlePayment()
+            }
+          }}
+          // eslint-disable-next-line tailwindcss/no-custom-classname
+          className={cn("min-w-24", isLoading && "pointer-events-none")}
+        >
+          {isLoading ? (
+            <Icons.Spinner className="h-4 w-4 animate-spin" />
+          ) : isCurrentPlan ? (
+            "Cancel subscription"
+          ) : (
+            "Proceed"
+          )}
+        </Button>
+      </DialogFooter>
+    </>
   )
 }

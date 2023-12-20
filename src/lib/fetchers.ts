@@ -1,13 +1,23 @@
-import type { PostInputs, Response, SignInInputs, SignUpInputs } from "@/types"
-import type { Post, Subscription, User } from "@/types/api"
-import { convertToCloudinaryURL, generateUUID } from "@/lib/utils"
+import type {
+  PostInputs,
+  Response,
+  SignInInputs,
+  SignUpInputs,
+  SubscriptionPlan,
+} from "@/types"
+import type { Post, Subscription, Transaction, User } from "@/types/api"
+import { subscriptionPlans } from "@/config"
+import { convertToCloudinaryURL, generateUUID, slugify } from "@/lib/utils"
 
 /**
- * Generic fetcher for useSWR
+ * Generic fetcher for `swr`
  */
-export async function fetcher<TData>(endpoint: string): Promise<TData> {
+export async function fetcher<TData>(
+  endpoint: string,
+  options?: RequestInit,
+): Promise<TData> {
   const url = new URL(endpoint, process.env.NEXT_PUBLIC_DB_URL)
-  const res = await fetch(url)
+  const res = await fetch(url, options)
 
   if (!res.ok) {
     throw new Error("Failed to fetch at " + endpoint)
@@ -149,9 +159,10 @@ export async function updatePost(
       body: JSON.stringify({
         ...data,
         image: convertedImage,
-        likes: mode === "add" ? 0 : undefined,
+        likers: mode === "add" ? [] : undefined,
         updatedAt: new Date().toString(),
         createdAt: mode === "add" ? new Date().toString() : undefined,
+        slug: mode === "add" ? slugify(data.title) : undefined,
       } satisfies Partial<Omit<Post, "id">>),
     }
 
@@ -189,6 +200,45 @@ export async function deletePost(id: number): Promise<Response> {
     return {
       success: true,
       message: `Post deleted`,
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : "Something went wrong",
+    }
+  }
+}
+
+export async function addTransaction(
+  usersId: number,
+  type: SubscriptionPlan["id"],
+): Promise<Response<Transaction>> {
+  try {
+    const url = new URL("/transactions", process.env.NEXT_PUBLIC_DB_URL)
+    const options: RequestInit = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        usersId,
+        amount: subscriptionPlans.find((plan) => plan.id === type)?.price ?? 0,
+        status: "unpaid",
+        type,
+        createdAt: new Date().toISOString(),
+      } satisfies Partial<Omit<Transaction, "id">>),
+    }
+
+    const res = await fetch(url, options)
+
+    if (!res.ok) {
+      throw new Error("Failed to add a transaction")
+    }
+
+    return {
+      success: true,
+      message: "Transaction added",
+      data: await res.json(),
     }
   } catch (err) {
     return {

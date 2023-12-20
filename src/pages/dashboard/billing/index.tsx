@@ -1,9 +1,14 @@
 import React from "react"
-import { CheckIcon } from "@radix-ui/react-icons"
+import { CheckIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import useSWR from "swr"
 
+import type { Transaction } from "@/types/api"
 import { subscriptionPlans } from "@/config"
+import { fetcher } from "@/lib/fetchers"
 import { useStore } from "@/lib/store"
-import { cn, formatDate, formatPrice } from "@/lib/utils"
+import { cn, formatDate, formatPrice, toSentenceCase } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -12,6 +17,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DashboardLayout } from "@/components/layouts/dashboard"
 import { ManageSubscriptionForm } from "@/components/manage-subscription-form"
@@ -20,12 +32,30 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "@/components/page-header"
+import { PaymentPage } from "@/components/payment-page"
 import { Shell } from "@/components/shell"
 
 export default function BillingPage() {
   const { loading, user } = useStore(({ loading, user }) => ({ loading, user }))
 
-  const subscriptionPlan = user?.subscription
+  const { data: invoice, mutate } = useSWR(
+    user
+      ? `/transactions?usersId=${user.id}&status=unpaid&_sort=createdAt&_order=desc`
+      : null,
+    async (url) => {
+      const json = await fetcher<Transaction[]>(url)
+
+      return json[0]
+    },
+    {
+      refreshInterval: 1000,
+      onSuccess: () => {
+        console.log("success")
+      },
+    },
+  )
+
+  const currPlan = user?.subscription
 
   return (
     <Shell variant="sidebar">
@@ -38,19 +68,33 @@ export default function BillingPage() {
 
       <section className="space-y-5">
         <h2 className="text-xl font-semibold sm:text-2xl">Billing info</h2>
-        {loading && <Skeleton className="h-20 w-full" />}
-        {!loading && (
-          <Card className="grid gap-4 p-6">
-            <h3 className="text-lg font-semibold sm:text-xl">Free</h3>
-            <p className="text-sm text-muted-foreground">
-              {subscriptionPlan?.isSubscribed && subscriptionPlan.expiryDate
-                ? `Your plan renews on ${formatDate(
-                    subscriptionPlan.expiryDate,
-                  )}`
-                : "Upgrade to get access to premium posts"}
-            </p>
-          </Card>
-        )}
+        <Card className="grid gap-4 p-6">
+          {loading && (
+            <>
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-6 w-64" />
+            </>
+          )}
+          {!loading && currPlan && (
+            <>
+              <h3 className="text-lg font-semibold sm:text-xl">
+                {toSentenceCase(currPlan.type)}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {currPlan.isSubscribed && currPlan.expiryDate
+                  ? `Your plan renews on ${formatDate(currPlan.expiryDate)}`
+                  : "Upgrade to get access to premium posts"}
+              </p>
+              {invoice && (
+                <p className="text-sm text-yellow-600">
+                  <ExclamationTriangleIcon className="mr-2 inline h-4 w-4" />
+                  You have unpaid invoice waiting for payment.
+                  <PayNowPrompt invoice={invoice} />
+                </p>
+              )}
+            </>
+          )}
+        </Card>
       </section>
       <section className="space-y-5 pb-2.5">
         <h2 className="text-xl font-semibold sm:text-2xl">
@@ -68,7 +112,12 @@ export default function BillingPage() {
               )}
             >
               <CardHeader>
-                <CardTitle className="line-clamp-1">{plan.name}</CardTitle>
+                <CardTitle className="line-clamp-1 flex items-center gap-2">
+                  {plan.name}
+                  {currPlan?.type === plan.id && (
+                    <Badge className="text-sm">Active</Badge>
+                  )}
+                </CardTitle>
                 <CardDescription className="line-clamp-2">
                   {plan.description}
                 </CardDescription>
@@ -92,8 +141,10 @@ export default function BillingPage() {
               <CardFooter className="pt-4">
                 <ManageSubscriptionForm
                   plan={plan}
-                  isSubscribed={subscriptionPlan?.isSubscribed ?? false}
-                  isCurrentPlan={subscriptionPlan?.type === plan.id}
+                  isSubscribed={currPlan?.isSubscribed ?? false}
+                  isCurrentPlan={currPlan?.type === plan.id}
+                  invoice={invoice}
+                  mutate={mutate}
                 />
               </CardFooter>
             </Card>
@@ -101,6 +152,28 @@ export default function BillingPage() {
         </div>
       </section>
     </Shell>
+  )
+}
+
+interface PayNowPromptProps {
+  invoice: Transaction
+}
+
+function PayNowPrompt({ invoice }: PayNowPromptProps) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link" size="sm" className="inline-block h-fit">
+          Pay now
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Subscribe</DialogTitle>
+        </DialogHeader>
+        <PaymentPage invoice={invoice} />
+      </DialogContent>
+    </Dialog>
   )
 }
 
