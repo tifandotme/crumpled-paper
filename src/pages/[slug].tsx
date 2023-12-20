@@ -4,22 +4,16 @@ import type {
   InferGetStaticPropsType,
 } from "next"
 import Image from "next/image"
-import {
-  DotsVerticalIcon,
-  HeartIcon,
-  ImageIcon,
-  Share1Icon,
-} from "@radix-ui/react-icons"
+import { ImageIcon } from "@radix-ui/react-icons"
 import Balancer from "react-wrap-balancer"
 
 import type { Post } from "@/types/api"
 import { formatDate, readingTime } from "@/lib/utils"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { RootLayout } from "@/components/layouts/root"
+import { PostActions } from "@/components/post-actions"
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const url = new URL("/posts", process.env.NEXT_PUBLIC_DB_URL)
@@ -116,48 +110,41 @@ export default function PostPage({
       </section>
 
       <section className="container mb-10 flex max-w-screen-md justify-center">
-        <div className="flex items-center rounded-full border p-1">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <HeartIcon className="h-5 w-5" />
-          </Button>
-          <span className="mr-2">{post.likes}</span>
-          <Separator orientation="vertical" className="mx-2 my-auto h-5" />
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Share1Icon className="h-5 w-5" />
-          </Button>
-          <span className="mr-2">69</span>
-          <Separator orientation="vertical" className="mx-2 my-auto h-5" />
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <DotsVerticalIcon className="h-5 w-5" />
-          </Button>
-        </div>
+        <PostActions post={post} />
       </section>
 
-      <section className="container mb-10 flex max-w-screen-lg gap-4">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <Card key={index} className="w-full p-6">
-            <AspectRatio ratio={16 / 10}>
-              <Image
-                src="https://placehold.co/1600x1000"
-                alt=""
-                width={1600}
-                height={1000}
-                sizes="33vw"
-                className="absolute aspect-[16/10] object-cover"
-              />
-            </AspectRatio>
-            <div className="mt-4">
-              <h3 className="text-lg font-bold">Lorem ipsum dolor sit amet</h3>
-              <div className="mt-2 flex items-center text-muted-foreground">
-                <time dateTime="2021-06-01">June 1, 2021</time>
-                <span className="select-none text-xs text-muted-foreground">
-                  &bull;
-                </span>
-                <span>5 min read</span>
+      <section className="container mb-10 max-w-screen-lg">
+        <h2 className="mb-5 text-center text-xl font-semibold uppercase text-muted-foreground">
+          Recommended posts
+        </h2>
+        <div className="flex gap-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="w-full p-6">
+              <AspectRatio ratio={16 / 10}>
+                <Image
+                  src="https://placehold.co/1600x1000"
+                  alt=""
+                  width={1600}
+                  height={1000}
+                  sizes="33vw"
+                  className="absolute aspect-[16/10] object-cover"
+                />
+              </AspectRatio>
+              <div className="mt-4">
+                <h3 className="text-lg font-bold">
+                  Lorem ipsum dolor sit amet
+                </h3>
+                <div className="mt-2 flex items-center text-muted-foreground">
+                  <time dateTime="2021-06-01">June 1, 2021</time>
+                  <span className="select-none text-xs text-muted-foreground">
+                    &bull;
+                  </span>
+                  <span>5 min read</span>
+                </div>
               </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          ))}
+        </div>
       </section>
     </>
   )
