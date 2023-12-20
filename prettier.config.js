@@ -6,7 +6,6 @@ const importConfig = {
     "^(next/(.*)$)|^(next$)",
     "<THIRD_PARTY_MODULES>",
     "",
-    "^@/env(.*)$",
     "^@/types(.*)$",
     "^@/config(.*)$",
     "^@/assets/(.*)$",

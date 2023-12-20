@@ -23,18 +23,17 @@ const server = jsonServer.create()
 const router = jsonServer.router(dbPath)
 const middlewares = jsonServer.defaults()
 
+const DB_URL = new URL(process.env.NEXT_PUBLIC_DB_URL)
+const DELAY = 800 // ms
+
 server.use(middlewares)
 server.use((_, res, next) => {
   res.header("Access-Control-Allow-Headers", "*")
 
-  setTimeout(() => {
-    next()
-  }, 1000)
+  setTimeout(next, DELAY)
 })
 server.use(router)
 
-const dbUrl = new URL(process.env.NEXT_PUBLIC_DB_URL)
-
-server.listen(dbUrl.port, () => {
-  console.log(`JSON Server is running at ${dbUrl.toString()}`)
+server.listen(DB_URL.port, () => {
+  console.log(`JSON Server is running at ${DB_URL.origin}`)
 })

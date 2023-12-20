@@ -8,6 +8,7 @@ const config = {
   ],
   rules: {
     "prefer-const": "error",
+    "no-unused-vars": "off",
     "no-undef": "off",
     "tailwindcss/classnames-order": "off",
   },
