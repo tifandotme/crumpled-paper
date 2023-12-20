@@ -23,10 +23,10 @@ import { Icons } from "@/components/icons"
 import { PasswordInput } from "@/components/password-input"
 
 export function SignInForm() {
+  const router = useRouter()
+
   const [isLoading, setIsLoading] = React.useState(false)
   const updateUser = useStore((state) => state.updateUser)
-
-  const router = useRouter()
 
   const form = useForm<SignInInputs>({
     resolver: zodResolver(signInSchema),

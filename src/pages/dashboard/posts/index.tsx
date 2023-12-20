@@ -14,7 +14,7 @@ export default function PostsPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-auto">
       {isLoading && <DataTableSkeleton columnCount={6} />}
       {!isLoading && data && <PostsTable data={data} />}
     </div>

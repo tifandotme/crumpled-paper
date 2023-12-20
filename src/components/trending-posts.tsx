@@ -21,7 +21,6 @@ export function TrendingPosts() {
         Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="space-y-1">
             <Skeleton className="h-5 w-full" />
-            <Skeleton className="h-5 w-[70%]" />
             <Skeleton className="h-5 w-20" />
           </div>
         ))}

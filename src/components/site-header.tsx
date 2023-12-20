@@ -28,8 +28,8 @@ export function SiteHeader() {
   const updateUser = useStore((state) => state.updateUser)
 
   const onLogout = async () => {
-    removeCookie("token")
     removeCookie("role")
+    removeCookie("token")
 
     await router.push("/signin")
 
@@ -43,7 +43,6 @@ export function SiteHeader() {
       <div className="container flex h-16 items-center">
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            <span>foo</span>
             {loading && (
               <Skeleton className="h-8 w-8 rounded-full" aria-hidden="true" />
             )}
@@ -73,7 +72,7 @@ export function SiteHeader() {
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
-                      <Link href="/dashboard/stores" className="cursor-pointer">
+                      <Link href="/dashboard" className="cursor-pointer">
                         <DashboardIcon
                           className="mr-2 h-4 w-4"
                           aria-hidden="true"
