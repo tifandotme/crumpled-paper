@@ -14,5 +14,5 @@ export function setCookie(name: string, value: string) {
 }
 
 export function removeCookie(name: string) {
-  cookies.remove(name)
+  cookies.remove(name, { path: "/" })
 }
