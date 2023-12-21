@@ -2,13 +2,13 @@ import React from "react"
 import Link from "next/link"
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import type { ColumnDef } from "@tanstack/react-table"
-import toast from "react-hot-toast"
-import { mutate } from "swr"
+import { toast } from "sonner"
+import { type KeyedMutator } from "swr"
 
 import type { Post } from "@/types/api"
 import { postCategories } from "@/config"
 import { deletePost } from "@/lib/fetchers"
-import { cn, formatDate } from "@/lib/utils"
+import { cn, formatDate, toSentenceCase } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table/data-table"
@@ -21,15 +21,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export function PostsTable({ data: posts }: { data: Post[] }) {
+interface PostsTableProps<TData = Post[]> {
+  data: TData
+  mutate: KeyedMutator<TData>
+}
+
+export function PostsTable({ data: posts, mutate }: PostsTableProps) {
   const data = posts.map((post) => ({
     id: post.id,
     title: post.title,
     isPremium: post.isPremium ? "premium" : "free",
     category: post.category,
-    likes: post.likes,
+    likes: post.likers.length,
     updatedAt: post.updatedAt,
     createdAt: post.createdAt,
+    slug: post.slug,
   }))
 
   type Data = (typeof data)[number]
@@ -48,6 +54,7 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
       },
       {
         accessorKey: "isPremium",
+        enableSorting: false,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Type" />
         ),
@@ -56,10 +63,13 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
 
           return (
             <Badge
-              variant="outline"
-              className={cn(type === "premium" && "border-0 bg-yellow-200")}
+              variant={type === "premium" ? "default" : "outline"}
+              className={cn(
+                type === "premium" &&
+                  "bg-accent-premium hover:bg-accent-premium/80",
+              )}
             >
-              {type}
+              {toSentenceCase(type)}
             </Badge>
           )
         },
@@ -69,6 +79,7 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
       },
       {
         accessorKey: "category",
+        enableSorting: false,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Category" />
         ),
@@ -88,7 +99,7 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
       {
         accessorKey: "updatedAt",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Last Updated" />
+          <DataTableColumnHeader column={column} title="Updated" />
         ),
         cell: ({ cell }) => {
           const date = cell.getValue() as Data["updatedAt"]
@@ -99,7 +110,7 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
       {
         accessorKey: "createdAt",
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Created At" />
+          <DataTableColumnHeader column={column} title="Created" />
         ),
         cell: ({ cell }) => {
           const date = cell.getValue() as Data["createdAt"]
@@ -117,12 +128,14 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
                 variant="ghost"
                 className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
               >
-                <DotsHorizontalIcon className="h-4 w-4" aria-hidden="true" />
+                <DotsHorizontalIcon className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[130px]">
               <DropdownMenuItem asChild>
-                <Link href="/">View</Link>
+                <Link href={`/${row.original.slug}`} target="_blank">
+                  View
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href={`/dashboard/posts/edit/${row.original.id}`}>
@@ -132,14 +145,20 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
-                onClick={async () => {
-                  await toast.promise(deletePost(row.original.id), {
-                    loading: "Deleting post...",
-                    success: (data) => data.message,
-                    error: (err) => err.message,
-                  })
+                onClick={() => {
+                  const handleDeletion = async () => {
+                    const { success } = await deletePost(row.original.id)
 
-                  await mutate("/posts")
+                    if (!success) throw new Error()
+
+                    await mutate()
+                  }
+
+                  toast.promise(handleDeletion(), {
+                    loading: "Deleting post...",
+                    success: "Post deleted successfully",
+                    error: "Failed to delete post",
+                  })
                 }}
               >
                 Delete
@@ -149,7 +168,7 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
         ),
       },
     ],
-    [],
+    [mutate],
   )
 
   return (
@@ -159,14 +178,6 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
       pageCount={Math.ceil(data.length / 10)}
       filterableColumns={[
         {
-          id: "category",
-          title: "Category",
-          options: postCategories.map((item) => ({
-            label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
-            value: item,
-          })),
-        },
-        {
           id: "isPremium",
           title: "Type",
           options: [
@@ -175,10 +186,18 @@ export function PostsTable({ data: posts }: { data: Post[] }) {
               value: "free",
             },
             {
-              label: "Premium ✨",
+              label: "Premium",
               value: "premium",
             },
           ],
+        },
+        {
+          id: "category",
+          title: "Category",
+          options: postCategories.map((item) => ({
+            label: `${item.charAt(0).toUpperCase()}${item.slice(1)}`,
+            value: item,
+          })),
         },
       ]}
       searchableColumns={[
