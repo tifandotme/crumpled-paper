@@ -13,7 +13,7 @@ export function UsersLayout({ children }: React.PropsWithChildren) {
         <PageHeader className="flex-1">
           <PageHeaderHeading size="sm">Users</PageHeaderHeading>
           <PageHeaderDescription size="sm">
-            Manage users and their subscriptions.
+            Manage user subscriptions and incoming invoices
           </PageHeaderDescription>
         </PageHeader>
       </div>

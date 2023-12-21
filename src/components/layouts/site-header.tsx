@@ -1,9 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { DashboardIcon, ExitIcon, GearIcon } from "@radix-ui/react-icons"
-import toast from "react-hot-toast"
+import { DashboardIcon, ExitIcon } from "@radix-ui/react-icons"
+import { toast } from "sonner"
 
+import { siteConfig } from "@/config"
 import avatarImg from "@/assets/images/avatar.webp"
 import { removeCookie } from "@/lib/cookie"
 import { useStore } from "@/lib/store"
@@ -24,7 +25,7 @@ import { Icons } from "@/components/icons"
 export function SiteHeader() {
   const router = useRouter()
 
-  const { user, loading } = useStore((state) => state)
+  const { user, loading } = useStore(({ user, loading }) => ({ user, loading }))
   const updateUser = useStore((state) => state.updateUser)
 
   const onLogout = async () => {
@@ -41,11 +42,18 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="container flex h-16 items-center">
+        <div className="hidden gap-6 lg:flex">
+          <Link href="/" className="hidden items-center space-x-2 lg:flex">
+            <Icons.Logo className="h-6 w-6" />
+            <span className="hidden font-bold lg:inline-block">
+              {siteConfig.name}
+            </span>
+          </Link>
+        </div>
+
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
-            {loading && (
-              <Skeleton className="h-8 w-8 rounded-full" aria-hidden="true" />
-            )}
+            {loading && <Skeleton className="h-8 w-8 rounded-full" />}
             {!loading && user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -73,10 +81,7 @@ export function SiteHeader() {
                   <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard" className="cursor-pointer">
-                        <DashboardIcon
-                          className="mr-2 h-4 w-4"
-                          aria-hidden="true"
-                        />
+                        <DashboardIcon className="mr-2 h-4 w-4" />
                         Dashboard
                       </Link>
                     </DropdownMenuItem>
@@ -85,20 +90,8 @@ export function SiteHeader() {
                         href="/dashboard/billing"
                         className="cursor-pointer"
                       >
-                        <Icons.CreditCard
-                          className="mr-2 h-4 w-4"
-                          aria-hidden="true"
-                        />
+                        <Icons.CreditCard className="mr-2 h-4 w-4" />
                         Billing
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/dashboard/account"
-                        className="cursor-pointer"
-                      >
-                        <GearIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-                        Settings
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
@@ -108,7 +101,7 @@ export function SiteHeader() {
                       onClick={onLogout}
                       className="w-full cursor-pointer"
                     >
-                      <ExitIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+                      <ExitIcon className="mr-2 h-4 w-4" />
                       Log out
                     </button>
                   </DropdownMenuItem>

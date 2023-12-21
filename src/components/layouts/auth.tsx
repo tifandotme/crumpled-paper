@@ -23,10 +23,7 @@ export function AuthLayout({ children }: React.PropsWithChildren) {
           href="/"
           className="absolute left-8 top-6 z-20 flex items-center text-lg font-bold tracking-tight"
         >
-          <Icons.Logo
-            className="mr-2 h-8 w-8 translate-y-0.5"
-            aria-hidden="true"
-          />
+          <Icons.Logo className="mr-2 h-8 w-8 translate-y-0.5" />
           <span>{siteConfig.name}</span>
         </Link>
         <div className="absolute bottom-6 left-8 z-20 line-clamp-1 hidden text-base md:block">
