@@ -1,18 +1,25 @@
 import React from "react"
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import {
   ArrowDownIcon,
   ArrowUpIcon,
   CaretSortIcon,
+  DiscordLogoIcon,
+  InstagramLogoIcon,
+  LinkedInLogoIcon,
   StarFilledIcon,
+  TwitterLogoIcon,
 } from "@radix-ui/react-icons"
 import useSWRInfinite from "swr/infinite"
 
 import type { Post } from "@/types/api"
-import { fetcher } from "@/lib/fetchers"
-import { formatDate, toSentenceCase } from "@/lib/utils"
+import { footerLinks, postCategories, type PostCategories } from "@/config"
+import { useStore } from "@/lib/store"
+import { cn, formatDate, toSentenceCase, updateQueryParams } from "@/lib/utils"
+import useIntersection from "@/hooks/use-intersection"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,22 +30,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-import { RootLayout } from "@/components/layouts/root"
+import { Toggle } from "@/components/ui/toggle"
+import { HomeLayout } from "@/components/layouts/home"
 import { Shell } from "@/components/shell"
 import { TrendingPosts } from "@/components/trending-posts"
 
-export const getServerSideProps: GetServerSideProps<{
+type QueryParams = {
   page: string
   sort: "asc" | "desc"
-}> = async (context) => {
-  const page = (context.query?.page as string) ?? "1"
-  const sort = (context.query?.sort as "asc" | "desc") ?? "desc"
+  category: PostCategories | null
+  premium: "true" | "false"
+}
+
+export const getServerSideProps: GetServerSideProps<QueryParams> = async (
+  context,
+) => {
+  const queryParams = context.query as QueryParams
+
+  const page = queryParams.page ?? "1"
+  const sort = queryParams.sort ?? "desc"
+  const category = queryParams.category ?? null
+  const premium = queryParams.premium ?? "false"
 
   return {
     props: {
       page,
       sort,
+      category,
+      premium,
     },
   }
 }
@@ -46,27 +67,33 @@ export const getServerSideProps: GetServerSideProps<{
 const PAGE_SIZE = 10
 
 export default function HomePage({
-  page,
-  sort,
+  page: initialPage,
+  sort: initialSort,
+  category: initialCategory,
+  premium: initialPremium,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
 
-  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">(sort)
+  const { sort, category, premium } = router.query as Partial<QueryParams>
 
-  const { data, isLoading, size, setSize, mutate } = useSWRInfinite(
+  const [categoryState, setCategoryState] = React.useState(initialCategory)
+  const [premiumState, setPremiumState] = React.useState(initialPremium)
+  const [sortState, setSortState] = React.useState(initialSort)
+
+  const { data, isLoading, size, setSize } = useSWRInfinite<Post[]>(
     (idx) => {
       const params = new URLSearchParams()
-      params.set("_sort", "id")
-      params.set("_order", sortOrder)
+      if (categoryState) params.set("category", categoryState)
+      if (premiumState === "true") params.set("isPremium", "true")
+      params.set("_sort", "updatedAt")
+      params.set("_order", sortState)
       params.set("_page", String(idx + 1))
       params.set("_limit", String(PAGE_SIZE))
 
       return `/posts?${params.toString()}}`
     },
-    fetcher<Post[]>,
     {
-      initialSize: Number(page),
-      revalidateOnFocus: false,
+      initialSize: Number(initialPage),
       persistSize: true,
       parallel: true,
     },
@@ -82,153 +109,183 @@ export default function HomePage({
   React.useEffect(() => {
     if (size === 1) return
 
-    router.replace(
-      {
-        query: {
-          ...router.query,
-          page: size,
-        },
-      },
-      undefined,
-      { shallow: true, scroll: false },
-    )
+    updateQueryParams(router, { page: String(size) })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size])
 
   React.useEffect(() => {
-    if (router.query.sort === undefined) return
-    if (router.query.sort === sortOrder) return
+    if (!sort || sort === sortState) return
 
-    setSortOrder(router.query.sort as "asc" | "desc")
+    setSortState(sort)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query.sort])
+  }, [sort])
 
-  console.log(sortOrder)
+  React.useEffect(() => {
+    if (category === undefined || category === categoryState) return
+
+    setCategoryState(category)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category])
+
+  React.useEffect(() => {
+    if (!premium || premium === premiumState) return
+
+    setPremiumState(premium)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [premium])
 
   return (
-    <Shell className="max-w-screen-xl grid-cols-12 items-start gap-10 px-14">
-      <section className="col-span-8">
-        <div className="mb-4 space-x-4">
+    <Shell className="flex max-w-screen-lg items-start gap-10 px-14 xl:grid xl:max-w-screen-xl xl:grid-cols-12">
+      <section className="col-span-8 w-full">
+        <Card className="mb-4 block xl:hidden">
+          <CardHeader>
+            <CardTitle className="text-xl">Trending Posts</CardTitle>
+          </CardHeader>
+          <TrendingPosts />
+        </Card>
+
+        <div className="mb-4 items-center space-x-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="data-[state=open]:bg-accent">
+              <Button
+                size="lg"
+                variant="outline"
+                className="data-[state=open]:bg-accent"
+              >
                 <span>Date</span>
-                {sortOrder === "desc" ? (
-                  <ArrowDownIcon className="ml-2 h-4 w-4" aria-hidden="true" />
+                {sortState === "desc" ? (
+                  <ArrowDownIcon className="ml-2 h-4 w-4" />
                 ) : (
-                  <ArrowUpIcon className="ml-2 h-4 w-4" aria-hidden="true" />
+                  <ArrowUpIcon className="ml-2 h-4 w-4" />
                 )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
               <DropdownMenuItem
                 aria-label="Sort ascending"
-                onClick={() => {
-                  router.replace(
-                    {
-                      query: {
-                        ...router.query,
-                        sort: "asc",
-                      },
-                    },
-                    undefined,
-                    { shallow: true, scroll: false },
-                  )
-                }}
+                onClick={() => updateQueryParams(router, { sort: "asc" })}
               >
-                <ArrowUpIcon
-                  className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"
-                  aria-hidden="true"
-                />
+                <ArrowUpIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
                 Asc
               </DropdownMenuItem>
               <DropdownMenuItem
                 aria-label="Sort descending"
-                onClick={() => {
-                  router.replace(
-                    {
-                      query: {
-                        ...router.query,
-                        sort: "desc",
-                      },
-                    },
-                    undefined,
-                    { shallow: true, scroll: false },
-                  )
-                }}
+                onClick={() => updateQueryParams(router, { sort: "desc" })}
               >
-                <ArrowDownIcon
-                  className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"
-                  aria-hidden="true"
-                />
+                <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
                 Desc
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <span>foo</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="lg"
+                variant="outline"
+                className={cn(
+                  "data-[state=open]:bg-accent",
+                  categoryState && "bg-accent",
+                )}
+              >
+                <span>
+                  {categoryState ? toSentenceCase(categoryState) : "Category"}
+                </span>
+                <CaretSortIcon className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {postCategories.map((category) => (
+                <DropdownMenuItem
+                  key={category}
+                  onClick={() => updateQueryParams(router, { category })}
+                >
+                  {toSentenceCase(category)}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem
+                onClick={() => updateQueryParams(router, { category: null })}
+                className="text-destructive"
+              >
+                Clear Filter
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Toggle
+            size="lg"
+            className="px-8 hover:text-foreground data-[state=on]:text-yellow-500"
+            defaultPressed={premiumState === "true"}
+            onPressedChange={(state) =>
+              updateQueryParams(router, { premium: String(state) })
+            }
+          >
+            <span>Premium Only</span>
+          </Toggle>
         </div>
 
         <div className="space-y-4">
-          {posts.map((post, i) => (
-            <>
-              {i % PAGE_SIZE === 0 && i !== 0 && (
+          {posts.map((post, idx) => (
+            <React.Fragment key={post.id}>
+              {idx % PAGE_SIZE === 0 && idx !== 0 && (
                 <div className="relative border-b border-border/80">
                   <div className="absolute left-1/2 top-[-1rem] -translate-x-1/2 bg-background p-2 text-xs uppercase leading-[1rem] tracking-wider text-muted-foreground">
-                    Page {i / PAGE_SIZE + 1}
+                    Page {idx / PAGE_SIZE + 1}
                   </div>
                 </div>
               )}
-              <article
-                key={post.id}
-                className="flex flex-col gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm"
-              >
-                <div className="flex gap-4">
-                  <div className="w-full">
-                    <h2 className="mb-2 text-2xl font-bold tracking-tight">
-                      {post.id} - {post.title}
-                    </h2>
-                    <p className="line-clamp-3">{post.content}</p>
+              <Link key={post.id} href={`/${post.slug}`} className="block">
+                <article className="flex flex-col gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
+                  <div className="flex gap-4">
+                    <div className="w-full">
+                      <h2 className="mb-2 text-2xl font-bold tracking-tight">
+                        {post.title}
+                      </h2>
+                      <p className="line-clamp-3">{post.content}</p>
+                    </div>
+                    <div className="min-w-[180px]">
+                      <AspectRatio ratio={16 / 10}>
+                        <Image
+                          className="absolute h-[112.5px] w-[180px] rounded-lg object-cover"
+                          width="1600"
+                          height="1000"
+                          src={post.image}
+                          alt="thumbnail"
+                        />
+                      </AspectRatio>
+                    </div>
                   </div>
-                  <div className="min-w-[180px]">
-                    <AspectRatio ratio={16 / 10}>
-                      <Image
-                        className="absolute h-[112.5px] w-[180px] rounded-lg object-cover"
-                        width="1600"
-                        height="1000"
-                        src={post.image}
-                        alt="thumbnail"
-                      />
-                    </AspectRatio>
+                  <div className="flex justify-between gap-4 text-muted-foreground">
+                    <div className="inline-flex items-center gap-2">
+                      <time dateTime={post.updatedAt}>
+                        {formatDate(post.updatedAt)}
+                      </time>
+                      <span className="text-xs text-muted-foreground">
+                        &bull;
+                      </span>
+                      <span>{post.likers.length + " likes"}</span>
+                    </div>
+                    <div className="inline-flex gap-2">
+                      <Badge variant="secondary">
+                        {toSentenceCase(post.category)}
+                      </Badge>
+                      {post.isPremium && (
+                        <Badge className="bg-accent-premium hover:bg-accent-premium/80">
+                          Premium
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="flex justify-between gap-4 text-muted-foreground">
-                  <div className="inline-flex items-center gap-2">
-                    <time dateTime={post.updatedAt}>
-                      {formatDate(post.updatedAt)}
-                    </time>
-                    <span className="text-xs text-muted-foreground">
-                      &bull;
-                    </span>
-                    <span>{post.likes + " likes"}</span>
-                  </div>
-                  <div className="inline-flex gap-2">
-                    <Badge variant="secondary">
-                      {toSentenceCase(post.category)}
-                    </Badge>
-                    {post.isPremium && (
-                      <Badge className="bg-yellow-600">Premium</Badge>
-                    )}
-                  </div>
-                </div>
-              </article>
-            </>
+                </article>
+              </Link>
+            </React.Fragment>
           ))}
           {(isLoading || isLoadingMore) &&
-            Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            Array.from({ length: PAGE_SIZE }).map((_, idx) => (
               <article
-                key={i}
+                key={idx}
                 className="flex gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm"
               >
                 <div className="flex w-full flex-col gap-4">
@@ -249,7 +306,53 @@ export default function HomePage({
           )}
         </div>
       </section>
-      <aside className="sticky top-[-160px] col-span-4 w-full space-y-4">
+
+      <Sidebar />
+    </Shell>
+  )
+}
+
+const Sidebar = React.memo(function Sidebar() {
+  const { user, loading } = useStore(({ user, loading }) => ({ user, loading }))
+
+  const footerRef = React.useRef<HTMLDivElement | null>(null)
+  const sidebarRef = React.useRef<HTMLDivElement | null>(null)
+
+  const intersection = useIntersection(footerRef, {
+    root: null,
+    rootMargin: "0px",
+    threshold: 1,
+  })
+
+  const [isSticky, setIsSticky] = React.useState(false)
+  const top = React.useRef(0)
+
+  React.useEffect(() => {
+    if (!intersection) return
+
+    if (intersection.intersectionRatio >= 1) {
+      setIsSticky(true)
+
+      const windowHeight = window.innerHeight ?? 0
+      const sidebarHeight = sidebarRef.current?.offsetHeight ?? 0
+
+      top.current = windowHeight - sidebarHeight
+    } else {
+      setIsSticky(false)
+    }
+  }, [intersection])
+
+  return (
+    <aside
+      ref={sidebarRef}
+      className={cn(
+        "col-span-4 hidden w-full space-y-4 xl:block",
+        isSticky && "sticky",
+      )}
+      style={{ top: top.current - 32 }}
+      // 32 comes from padding-bottom of Shell component in HomePage
+    >
+      {!loading && !user?.subscription.isSubscribed && (
         <Card className="flex flex-col items-center gap-7 p-6">
           <StarFilledIcon className="h-14 w-14 text-yellow-600" />
           <span className="text-center">
@@ -260,18 +363,86 @@ export default function HomePage({
             <Button variant="outline">Explore Plans</Button>
           </div>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Trending Posts</CardTitle>
-          </CardHeader>
-          <TrendingPosts />
-        </Card>
-        <footer className="h-56 rounded-lg bg-muted p-6">footer</footer>
-      </aside>
-    </Shell>
+      )}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Trending Posts</CardTitle>
+        </CardHeader>
+        <TrendingPosts />
+      </Card>
+      <footer ref={footerRef} className="rounded-lg bg-muted p-6">
+        <div className="grid grid-cols-2 gap-y-2 first:[&>h3]:mt-0">
+          {footerLinks.map(({ title: heading, links }) => (
+            <React.Fragment key={heading}>
+              <h3 className="col-span-2 mt-5 font-medium">{heading}</h3>
+              {links.map(({ title, href }) => (
+                <a
+                  key={title}
+                  href={href}
+                  className="text-sm text-foreground/90 hover:underline"
+                >
+                  {title}
+                </a>
+              ))}
+            </React.Fragment>
+          ))}
+
+          <h3 className="col-span-2 mt-5 font-medium">Connect with us</h3>
+          <div className="col-span-2 space-x-5">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-accent hover:bg-background"
+            >
+              <TwitterLogoIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-accent hover:bg-background"
+            >
+              <LinkedInLogoIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-accent hover:bg-background"
+            >
+              <InstagramLogoIcon className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-accent hover:bg-background"
+            >
+              <DiscordLogoIcon className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <Separator className="col-span-2 my-4" />
+          <div className="col-span-2 space-x-2 text-sm">
+            <a href="#" className="hover:underline">
+              Privacy
+            </a>
+            <span className="select-none text-xs text-muted-foreground">
+              &bull;
+            </span>
+            <a href="#" className="hover:underline">
+              Terms
+            </a>
+            <span className="select-none text-xs text-muted-foreground">
+              &bull;
+            </span>
+            <span className="text-muted-foreground">
+              © {new Date().getFullYear()} QPost
+            </span>
+          </div>
+        </div>
+      </footer>
+    </aside>
   )
-}
+})
 
 HomePage.getLayout = function getLayout(page: React.ReactElement) {
-  return <RootLayout>{page}</RootLayout>
+  return <HomeLayout>{page}</HomeLayout>
 }
