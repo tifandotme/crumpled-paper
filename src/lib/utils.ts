@@ -1,3 +1,4 @@
+import type { NextRouter } from "next/router"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -18,8 +19,8 @@ export function formatPrice(price: number | string) {
 }
 
 export function formatDate(date: string | Date) {
-  return new Intl.DateTimeFormat("id-ID", {
-    dateStyle: "full",
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
   }).format(new Date(date))
 }
 
@@ -32,6 +33,38 @@ export function toSentenceCase(str: string) {
     .replace(/^./, (str) => str.toUpperCase())
 }
 
+export function slugify(text: string): string {
+  return text
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/--+/g, "-")
+    .replace(/[^\w/-]+/g, "")
+    .toLowerCase()
+}
+
+export function readingTime(text: string): number {
+  const wpm = 190 // adult reading speed
+  const words = text.trim().split(/\s+/).length
+
+  return Math.ceil(words / wpm)
+}
+
+export function updateQueryParams(
+  router: NextRouter,
+  newQuery: Record<string, string | null>,
+) {
+  router.replace(
+    {
+      query: {
+        ...router.query,
+        ...newQuery,
+      },
+    },
+    undefined,
+    { shallow: true, scroll: false },
+  )
+}
+
 export async function convertToCloudinaryURL(url: string) {
   try {
     // Skip if already a cloudinary url
@@ -39,10 +72,8 @@ export async function convertToCloudinaryURL(url: string) {
       return url
     }
 
-    const file = await fetch(url).then((res) => res.blob())
-
     const data = new FormData()
-    data.append("file", file)
+    data.append("file", await fetch(url).then((res) => res.blob()))
     data.append("upload_preset", "qpost_admin")
 
     const res = await fetch(
@@ -59,7 +90,7 @@ export async function convertToCloudinaryURL(url: string) {
 
     const json = await res.json()
 
-    // remove version
+    // Remove version
     const secureUrl = new URL(json.secure_url as string)
     const segments = secureUrl.pathname.split("/")
     segments.splice(4, 1)

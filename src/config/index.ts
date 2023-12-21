@@ -1,4 +1,9 @@
-import type { DashboardConfig, SiteConfig, SubscriptionPlan } from "@/types"
+import type {
+  DashboardConfig,
+  FooterLink,
+  SiteConfig,
+  SubscriptionPlan,
+} from "@/types"
 
 export const siteConfig: SiteConfig = {
   name: "QPost",
@@ -37,6 +42,8 @@ export const postCategories = [
   "culture",
 ] as const
 
+export type PostCategories = (typeof postCategories)[number]
+
 export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: "free",
@@ -61,5 +68,19 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       "Create up to 20 products per store",
     ],
     price: 390000,
+  },
+]
+
+export const footerLinks: FooterLink[] = [
+  {
+    title: "Company",
+    links: [
+      { title: "Blog", href: "#" },
+      { title: "About", href: "#" },
+      { title: "Press kit", href: "#" },
+      { title: "Careers", href: "#" },
+      { title: "Service status", href: "#" },
+      { title: "Support", href: "#" },
+    ],
   },
 ]
