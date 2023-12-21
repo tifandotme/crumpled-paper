@@ -1,9 +1,17 @@
 import QRCode from "react-qr-code"
+import { toast } from "sonner"
 
 import type { Transaction } from "@/types/api"
+import { useStore } from "@/lib/store"
 import { formatPrice } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Icons } from "@/components/icons"
 
 interface PaymentPageProps {
@@ -14,6 +22,12 @@ interface PaymentPageProps {
  * Only to be used inside a `DialogContent`
  */
 export function PaymentPage({ invoice }: PaymentPageProps) {
+  const user = useStore((state) => state.user)
+
+  const paymentUrl = new URL(process.env.NEXT_PUBLIC_APP_URL as string)
+  paymentUrl.pathname = `/payment/${invoice.id}`
+  paymentUrl.searchParams.set("token", user?.token ?? "")
+
   return (
     <>
       <p className="text-center text-lg font-semibold">
@@ -23,12 +37,26 @@ export function PaymentPage({ invoice }: PaymentPageProps) {
         You will be automatically redirected once the amount is paid
       </p>
       <span className="inline-flex items-center justify-center gap-2 text-accent-foreground">
-        <Icons.Spinner className="inline-block h-4 w-4 animate-spin" />
+        <Icons.Spinner className="h-4 w-4 animate-spin" />
         Awaiting payment..
       </span>
-      <div className="mx-auto my-4 bg-white p-1">
-        <QRCode value="https://www.google.com" />
-      </div>
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <button
+              className="mx-auto my-4 bg-white p-1"
+              onClick={() => {
+                navigator.clipboard.writeText(paymentUrl.toString())
+
+                toast.success("Copied to clipboard")
+              }}
+            >
+              <QRCode value={paymentUrl.toString()} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Copy to clipboard</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <span className="mb-2 text-right text-sm text-muted-foreground">
         Created at&nbsp;
         {new Intl.DateTimeFormat("en-US", {
