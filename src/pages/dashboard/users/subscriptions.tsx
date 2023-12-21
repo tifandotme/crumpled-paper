@@ -2,16 +2,13 @@ import React from "react"
 import useSWR from "swr"
 
 import type { User } from "@/types/api"
-import { fetcher } from "@/lib/fetchers"
 import { DataTableSkeleton } from "@/components/ui/data-table/data-table-skeleton"
 import { DashboardLayout } from "@/components/layouts/dashboard"
-import { UsersLayout } from "@/components/layouts/users"
+import { UsersLayout } from "@/components/layouts/dashboard-users"
 import { SubscriptionsTable } from "@/components/tables/subscriptions-table"
 
 export default function SubscriptionsPage() {
-  const { data, isLoading } = useSWR("/users", fetcher<User[]>, {
-    revalidateOnFocus: false,
-  })
+  const { data, isLoading, mutate } = useSWR<User[]>("/users")
 
   return (
     <div className="space-y-6">
@@ -20,7 +17,7 @@ export default function SubscriptionsPage() {
       </div>
 
       {isLoading && <DataTableSkeleton columnCount={7} />}
-      {!isLoading && data && <SubscriptionsTable data={data} />}
+      {!isLoading && data && <SubscriptionsTable data={data} mutate={mutate} />}
     </div>
   )
 }
