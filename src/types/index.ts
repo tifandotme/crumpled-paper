@@ -54,3 +54,8 @@ export type SubscriptionPlan = {
   features: string[]
   price: number
 }
+
+export type FooterLink = {
+  title: string
+  links: Omit<NavItem, "icon">[]
+}
