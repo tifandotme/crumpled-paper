@@ -6,42 +6,51 @@ import { faker } from "@faker-js/faker"
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const dbPath = path.join(__dirname, "db.json")
 
-const users = [
+const USER_COUNT = 100
+const POST_COUNT = 100
+
+const admin = [
   {
     id: 1,
     name: "Admin",
     email: "admin@qpost.com",
-    password: "Kebo43-del",
-    address: "123 Sesame St",
-    phone: "+62 81234567890",
+    password: "Qq12345678-",
+    address: faker.location.streetAddress(false),
+    phone: faker.phone.number(),
     referral: "",
     role: "admin",
-    token: "admin-e6913fb6-052f-42ee-b3fe-8faded8ae466",
+    token: "admin-" + faker.string.uuid(),
     subscription: {
-      type: "free",
-      expiryDate: null,
-      isSubscribed: false,
-    },
-  },
-  {
-    id: 2,
-    name: "John Doe",
-    email: "john@mail.com",
-    password: "Qq123*123",
-    address: "123 asd",
-    phone: "123123123123",
-    referral: "",
-    role: "user",
-    token: "john-5aea0b04-68df-4efe-b33b-4cc153185b50",
-    subscription: {
-      type: "free",
-      expiryDate: null,
-      isSubscribed: false,
+      type: "yearly",
+      expiryDate: new Date("2049-12-12"),
+      isSubscribed: true,
     },
   },
 ]
 
-const posts = Array.from({ length: 100 }, (_, i) => {
+const users = Array.from({ length: USER_COUNT }, (_, i) => {
+  const firstName = faker.person.firstName()
+  const lastName = faker.person.lastName()
+  const subType = faker.helpers.arrayElement(["free", "monthly", "yearly"])
+  return {
+    id: i + 2,
+    name: `${firstName} ${lastName}`,
+    email: faker.internet.exampleEmail({ firstName, lastName }),
+    password: "Qq12345678-",
+    address: faker.location.streetAddress(false),
+    phone: faker.phone.number(),
+    referral: "",
+    role: "user",
+    token: firstName.toLowerCase() + "-" + faker.string.uuid(),
+    subscription: {
+      type: subType,
+      expiryDate: subType !== "free" ? faker.date.future({ years: 3 }) : null,
+      isSubscribed: subType !== "free",
+    },
+  }
+})
+
+const posts = Array.from({ length: POST_COUNT }, (_, i) => {
   const title = faker.lorem.sentence().replace(/\./g, "")
 
   return {
@@ -61,7 +70,14 @@ const posts = Array.from({ length: 100 }, (_, i) => {
     ]),
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent({ days: 90 }),
-    likes: faker.number.int({ min: 0, max: 3000 }),
+    likers: faker.helpers.arrayElements(
+      users.map((user) => user.id),
+      {
+        min: 0,
+        max: USER_COUNT,
+      },
+    ),
+    shareCount: faker.number.int({ min: 0, max: 1000 }),
     image: faker.image.urlPicsumPhotos({
       height: 1000,
       width: 1600,
@@ -71,8 +87,9 @@ const posts = Array.from({ length: 100 }, (_, i) => {
 })
 
 const data = {
-  users,
+  users: [...admin, ...users],
   posts,
+  transactions: [],
 }
 
 try {
