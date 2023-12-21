@@ -2,7 +2,6 @@ import { useRouter } from "next/router"
 import useSWR from "swr"
 
 import type { Post } from "@/types/api"
-import { fetcher } from "@/lib/fetchers"
 import {
   Card,
   CardContent,
@@ -13,15 +12,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { PostForm } from "@/components/forms/post-form"
 import { DashboardLayout } from "@/components/layouts/dashboard"
-import { PostsLayout } from "@/components/layouts/posts"
+import { PostsLayout } from "@/components/layouts/dashboard-posts"
 
 export default function EditPostPage() {
   const router = useRouter()
 
   const id = router.query.id as string
-  const { data, isLoading } = useSWR(`/posts/${id}`, fetcher<Post>, {
-    revalidateOnFocus: false,
-    onError: () => router.push("/dashboard/posts"),
+  const { data, isLoading } = useSWR<Post>(`/posts/${id}`, {
+    onError: () => {
+      router.push("/dashboard/posts")
+    },
   })
 
   return (

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PostForm } from "@/components/forms/post-form"
 import { DashboardLayout } from "@/components/layouts/dashboard"
-import { PostsLayout } from "@/components/layouts/posts"
+import { PostsLayout } from "@/components/layouts/dashboard-posts"
 
 export default function AddPostPage() {
   return (
