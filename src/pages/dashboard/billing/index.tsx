@@ -36,22 +36,19 @@ import { PaymentPage } from "@/components/payment-page"
 import { Shell } from "@/components/shell"
 
 export default function BillingPage() {
-  const { loading, user } = useStore(({ loading, user }) => ({ loading, user }))
+  const { user, loading } = useStore(({ user, loading }) => ({ user, loading }))
 
   const { data: invoice, mutate } = useSWR(
     user
-      ? `/transactions?usersId=${user.id}&status=unpaid&_sort=createdAt&_order=desc`
+      ? `/transactions?usersId=${user.id}&status=unpaid&status=pending&_sort=createdAt&_order=desc`
       : null,
     async (url) => {
       const json = await fetcher<Transaction[]>(url)
 
-      return json[0]
+      return json[0] ?? null
     },
     {
-      refreshInterval: 1000,
-      onSuccess: () => {
-        console.log("success")
-      },
+      refreshInterval: 1500,
     },
   )
 
@@ -85,14 +82,25 @@ export default function BillingPage() {
                   ? `Your plan renews on ${formatDate(currPlan.expiryDate)}`
                   : "Upgrade to get access to premium posts"}
               </p>
-              {invoice && (
-                <p className="text-sm text-yellow-600">
-                  <ExclamationTriangleIcon className="mr-2 inline h-4 w-4" />
-                  You have unpaid invoice waiting for payment.
-                  <PayNowPrompt invoice={invoice} />
-                </p>
-              )}
             </>
+          )}
+          {invoice && (
+            <p className="text-sm text-yellow-600">
+              <ExclamationTriangleIcon className="mr-2 inline h-4 w-4" />
+              {invoice.status === "unpaid" ? (
+                <span>
+                  You have unpaid invoice for the {toSentenceCase(invoice.type)}{" "}
+                  plan waiting for payment.
+                  <PayNowPrompt invoice={invoice} />
+                </span>
+              ) : (
+                <span>
+                  You have pending invoice for the{" "}
+                  {toSentenceCase(invoice.type)} plan. Please wait for our admin
+                  to approve your subscription
+                </span>
+              )}
+            </p>
           )}
         </Card>
       </section>
@@ -114,9 +122,7 @@ export default function BillingPage() {
               <CardHeader>
                 <CardTitle className="line-clamp-1 flex items-center gap-2">
                   {plan.name}
-                  {currPlan?.type === plan.id && (
-                    <Badge className="text-sm">Active</Badge>
-                  )}
+                  {currPlan?.type === plan.id && <Badge>Active</Badge>}
                 </CardTitle>
                 <CardDescription className="line-clamp-2">
                   {plan.description}
@@ -132,20 +138,23 @@ export default function BillingPage() {
                 <div className="space-y-2 text-sm text-muted-foreground">
                   {plan.features.map((feature) => (
                     <div key={feature} className="flex items-center gap-2">
-                      <CheckIcon className="h-4 w-4" aria-hidden="true" />
+                      <CheckIcon className="h-4 w-4" />
                       <span>{feature}</span>
                     </div>
                   ))}
                 </div>
               </CardContent>
               <CardFooter className="pt-4">
-                <ManageSubscriptionForm
-                  plan={plan}
-                  isSubscribed={currPlan?.isSubscribed ?? false}
-                  isCurrentPlan={currPlan?.type === plan.id}
-                  invoice={invoice}
-                  mutate={mutate}
-                />
+                {invoice === undefined ? (
+                  <Skeleton className="h-10 w-full" />
+                ) : (
+                  <ManageSubscriptionForm
+                    plan={plan}
+                    isCurrentPlan={currPlan?.type === plan.id}
+                    invoice={invoice}
+                    mutate={mutate}
+                  />
+                )}
               </CardFooter>
             </Card>
           ))}
