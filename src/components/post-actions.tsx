@@ -8,7 +8,7 @@ import {
   Share1Icon,
   TwitterLogoIcon,
 } from "@radix-ui/react-icons"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import type { Post } from "@/types/api"
@@ -122,8 +122,7 @@ export function PostActions({ post }: PostActionsProps) {
                 await incrementShareCount()
               }}
             >
-              <Link1Icon className="mr-2 h-4 w-4" aria-hidden="true" /> Copy
-              link
+              <Link1Icon className="mr-2 h-4 w-4" /> Copy link
             </Button>
           </DropdownMenuItem>
           <DropdownMenuSeparator />

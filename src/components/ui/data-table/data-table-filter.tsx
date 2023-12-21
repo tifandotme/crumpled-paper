@@ -44,7 +44,7 @@ export function DataTableFilter<TData, TValue>({
           size="sm"
           className="h-8 border-dashed"
         >
-          <Icons.Filter className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
+          <Icons.Filter className="mr-2 h-3.5 w-3.5" />
           {title}
           {selectedValues?.size > 0 && (
             <>
@@ -112,7 +112,7 @@ export function DataTableFilter<TData, TValue>({
                           : "opacity-50 [&_svg]:invisible",
                       )}
                     >
-                      <CheckIcon className={cn("h-4 w-4")} aria-hidden="true" />
+                      <CheckIcon className={cn("h-4 w-4")} />
                     </div>
                     <span>{option.label}</span>
                   </CommandItem>

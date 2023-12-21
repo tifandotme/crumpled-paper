@@ -49,11 +49,11 @@ export function DataTableColumnHeader<TData, TValue>({
           >
             <span>{title}</span>
             {column.getIsSorted() === "desc" ? (
-              <ArrowDownIcon className="ml-2 h-4 w-4" aria-hidden="true" />
+              <ArrowDownIcon className="ml-2 h-4 w-4" />
             ) : column.getIsSorted() === "asc" ? (
-              <ArrowUpIcon className="ml-2 h-4 w-4" aria-hidden="true" />
+              <ArrowUpIcon className="ml-2 h-4 w-4" />
             ) : (
-              <CaretSortIcon className="ml-2 h-4 w-4" aria-hidden="true" />
+              <CaretSortIcon className="ml-2 h-4 w-4" />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -62,20 +62,14 @@ export function DataTableColumnHeader<TData, TValue>({
             aria-label="Sort ascending"
             onClick={() => column.toggleSorting(false)}
           >
-            <ArrowUpIcon
-              className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"
-              aria-hidden="true"
-            />
+            <ArrowUpIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Asc
           </DropdownMenuItem>
           <DropdownMenuItem
             aria-label="Sort descending"
             onClick={() => column.toggleSorting(true)}
           >
-            <ArrowDownIcon
-              className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"
-              aria-hidden="true"
-            />
+            <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -83,10 +77,7 @@ export function DataTableColumnHeader<TData, TValue>({
             aria-label="Hide column"
             onClick={() => column.toggleVisibility(false)}
           >
-            <EyeNoneIcon
-              className="mr-2 h-3.5 w-3.5 text-muted-foreground/70"
-              aria-hidden="true"
-            />
+            <EyeNoneIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
             Hide
           </DropdownMenuItem>
         </DropdownMenuContent>

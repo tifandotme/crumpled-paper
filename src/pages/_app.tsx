@@ -1,5 +1,5 @@
 import React from "react"
-import { Toaster } from "react-hot-toast"
+import { Toaster } from "sonner"
 import { SWRConfig } from "swr"
 
 import type { AppPropsWithLayout } from "@/types/next"

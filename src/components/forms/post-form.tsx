@@ -1,7 +1,7 @@
 import React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 import type { PostInputs } from "@/types"
 import type { Post } from "@/types/api"
@@ -187,10 +187,7 @@ export function PostForm({ mode, initialData }: PostFormProps) {
         <div className="flex gap-4">
           <Button type="submit" disabled={isLoading} className="w-fit">
             {isLoading && (
-              <Icons.Spinner
-                className="mr-2 h-4 w-4 animate-spin"
-                aria-hidden="true"
-              />
+              <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
             {toSentenceCase(mode)} post
           </Button>

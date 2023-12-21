@@ -2,7 +2,7 @@ import React from "react"
 import { useRouter } from "next/router"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 
 import type { SignInInputs } from "@/types"
 import { setCookie } from "@/lib/cookie"
@@ -91,12 +91,7 @@ export function SignInForm() {
           )}
         />
         <Button type="submit" disabled={isLoading}>
-          {isLoading && (
-            <Icons.Spinner
-              className="mr-2 h-4 w-4 animate-spin"
-              aria-hidden="true"
-            />
-          )}
+          {isLoading && <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />}
           Sign in
           <span className="sr-only">Sign in</span>
         </Button>
