@@ -105,7 +105,7 @@ export async function registerUser(payload: SignUpInputs): Promise<Response> {
 export async function updateSubscription(
   userId: number,
   payload: Subscription,
-): Promise<Response> {
+): Promise<Response<User>> {
   try {
     const url = new URL(`/users/${userId}`, process.env.NEXT_PUBLIC_DB_URL)
     const options: RequestInit = {
@@ -125,6 +125,7 @@ export async function updateSubscription(
     return {
       success: true,
       message: "Subscription updated",
+      data: await res.json(),
     }
   } catch (err) {
     return {
@@ -199,7 +200,7 @@ export async function deletePost(id: number): Promise<Response> {
 
     return {
       success: true,
-      message: `Post deleted`,
+      message: "Post deleted",
     }
   } catch (err) {
     return {
@@ -238,6 +239,42 @@ export async function addTransaction(
     return {
       success: true,
       message: "Transaction added",
+      data: await res.json(),
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : "Something went wrong",
+    }
+  }
+}
+
+export async function updateTransaction(
+  paymentId: number,
+  status: Transaction["status"],
+): Promise<Response> {
+  try {
+    const url = new URL(
+      `/transactions/${paymentId}`,
+      process.env.NEXT_PUBLIC_DB_URL,
+    )
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status,
+      } satisfies Partial<Omit<Transaction, "id">>),
+    })
+
+    if (!res.ok) {
+      throw new Error("Failed to update transaction")
+    }
+
+    return {
+      success: true,
+      message: "Transaction updated",
       data: await res.json(),
     }
   } catch (err) {
