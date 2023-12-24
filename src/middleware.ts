@@ -4,22 +4,28 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value
   const role = request.cookies.get("role")?.value
 
-  if (["/signup", "/signin"].includes(request.nextUrl.pathname) && token) {
-    return NextResponse.redirect(request.nextUrl.origin)
+  const currPath = request.nextUrl.pathname
+  const currOrigin = request.nextUrl.origin
+
+  if (["/signup", "/signin"].includes(currPath) && token) {
+    return NextResponse.redirect(currOrigin)
   }
 
-  if (request.nextUrl.pathname.startsWith("/dashboard") && role !== "admin") {
-    return NextResponse.redirect(request.nextUrl.origin)
+  if (currPath.startsWith("/dashboard") && !token) {
+    return NextResponse.redirect(currOrigin + "/signin")
   }
 
-  if (request.nextUrl.pathname === "/dashboard") {
-    return NextResponse.redirect(request.nextUrl.origin + "/dashboard/account")
+  // prettier-ignore
+  if (["/dashboard/posts", "/dashboard/users"].includes(currPath) && role !== "admin") {
+    return NextResponse.redirect(currOrigin)
   }
 
-  if (request.nextUrl.pathname === "/dashboard/users") {
-    return NextResponse.redirect(
-      request.nextUrl.origin + "/dashboard/users/subscriptions",
-    )
+  if (currPath === "/dashboard") {
+    return NextResponse.redirect(currOrigin + "/dashboard/account")
+  }
+
+  if (currPath === "/dashboard/users") {
+    return NextResponse.redirect(currOrigin + "/dashboard/users/subscriptions")
   }
 
   return NextResponse.next()
