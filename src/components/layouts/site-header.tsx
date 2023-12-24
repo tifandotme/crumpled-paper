@@ -1,7 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { DashboardIcon, ExitIcon } from "@radix-ui/react-icons"
+import {
+  CounterClockwiseClockIcon,
+  DashboardIcon,
+  ExitIcon,
+} from "@radix-ui/react-icons"
 import { toast } from "sonner"
 
 import { siteConfig } from "@/config"
@@ -21,6 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Icons } from "@/components/icons"
+import { MobileNav } from "@/components/layouts/mobile-nav"
+import { SearchCommandMenu } from "@/components/search-command-menu"
 
 export function SiteHeader() {
   const router = useRouter()
@@ -32,7 +38,9 @@ export function SiteHeader() {
     removeCookie("role")
     removeCookie("token")
 
-    await router.push("/signin")
+    if (router.pathname.startsWith("/dashboard")) {
+      await router.push("/signin")
+    }
 
     updateUser(null)
 
@@ -41,17 +49,19 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
-      <div className="container flex h-16 items-center">
-        <div className="hidden gap-6 lg:flex">
-          <Link href="/" className="hidden items-center space-x-2 lg:flex">
+      <div className="container flex h-16 items-center justify-between">
+        <MobileNav />
+
+        <div className="hidden gap-6 md:flex">
+          <Link href="/" className="flex items-center space-x-2">
             <Icons.Logo className="h-6 w-6" />
-            <span className="hidden font-bold lg:inline-block">
-              {siteConfig.name}
-            </span>
+            <span className="font-bold">{siteConfig.name}</span>
           </Link>
         </div>
 
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex items-center justify-end space-x-4">
+          <SearchCommandMenu />
+
           <nav className="flex items-center space-x-2">
             {loading && <Skeleton className="h-8 w-8 rounded-full" />}
             {!loading && user && (
@@ -92,6 +102,12 @@ export function SiteHeader() {
                       >
                         <Icons.CreditCard className="mr-2 h-4 w-4" />
                         Billing
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="cursor-pointer">
+                        <CounterClockwiseClockIcon className="mr-2 h-4 w-4" />
+                        Recently Read
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
