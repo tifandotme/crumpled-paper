@@ -9,9 +9,10 @@ import { Skeleton } from "@/components/ui/skeleton"
 const POST_COUNT = 5
 
 export function TrendingPosts() {
-  const { data: posts, isLoading } = useSWR<Post[]>(
-    `/posts?_sort=likes&_order=desc&_limit=${POST_COUNT}`,
-  )
+  const { data, isLoading } = useSWR<Post[]>(`/posts`)
+  const posts = data
+    ?.sort((a, b) => b.likers.length - a.likers.length)
+    .slice(0, POST_COUNT)
 
   return (
     <CardContent className={cn(isLoading ? "mb-1 space-y-4" : "space-y-3")}>
