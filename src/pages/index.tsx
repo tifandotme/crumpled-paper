@@ -396,10 +396,14 @@ const Sidebar = React.memo(function Sidebar() {
           </span>
           <div className="space-x-2">
             <Button asChild>
-              <Link href="/dashboard/billing">Upgrade Now</Link>
+              <Link href="/dashboard/billing" prefetch={false}>
+                Upgrade Now
+              </Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/dashboard/billing">Explore Plans</Link>
+              <Link href="/dashboard/billing" prefetch={false}>
+                Explore Plans
+              </Link>
             </Button>
           </div>
         </Card>
@@ -429,7 +433,10 @@ const Sidebar = React.memo(function Sidebar() {
         </CardHeader>
         <TrendingPosts />
       </Card>
-      <footer ref={footerRef} className="rounded-lg bg-muted p-6">
+      <footer
+        ref={footerRef}
+        className="rounded-lg bg-accent p-6 text-accent-foreground"
+      >
         <div className="grid grid-cols-2 gap-y-2 first:[&>h3]:mt-0">
           {footerLinks.map(({ title: heading, links }) => (
             <React.Fragment key={heading}>
@@ -438,7 +445,7 @@ const Sidebar = React.memo(function Sidebar() {
                 <a
                   key={title}
                   href={href}
-                  className="text-sm text-foreground/90 hover:underline"
+                  className="text-sm text-accent-foreground/90 hover:underline"
                 >
                   {title}
                 </a>

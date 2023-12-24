@@ -51,7 +51,6 @@ export function SignInForm() {
       setCookie("role", user.role)
 
       await router.push("/")
-      router.reload()
     }
   }
 
