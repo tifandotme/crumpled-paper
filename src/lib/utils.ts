@@ -10,6 +10,14 @@ export function generateUUID() {
   return crypto.randomUUID()
 }
 
+export function isBrowser() {
+  return typeof window !== "undefined"
+}
+
+export function isMacOS() {
+  return isBrowser() && window.navigator.userAgent.includes("Mac")
+}
+
 export function formatPrice(price: number | string) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -74,7 +82,7 @@ export async function convertToCloudinaryURL(url: string) {
 
     const data = new FormData()
     data.append("file", await fetch(url).then((res) => res.blob()))
-    data.append("upload_preset", "qpost_admin")
+    data.append("upload_preset", "crumpled-paper")
 
     const res = await fetch(
       "https://api.cloudinary.com/v1_1/tifan/image/upload",
@@ -104,4 +112,27 @@ export async function convertToCloudinaryURL(url: string) {
 
     return null
   }
+}
+
+/**
+ * Get placeholder shimmer for `next/image`
+ *
+ * Alternative to `plaiceholder`, when SSR is not possible
+ */
+export function getBase64(w: number, h: number) {
+  const svg = `
+<svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g">
+      <stop stop-color="#d9d9d9" offset="20%" />
+      <stop stop-color="#e6e6e6" offset="50%" />
+      <stop stop-color="#d9d9d9" offset="70%" />
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#d9d9d9" />
+  <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1s" repeatCount="indefinite"  />
+</svg>`
+
+  return isBrowser() ? Buffer.from(svg).toString("base64") : window.btoa(svg)
 }
