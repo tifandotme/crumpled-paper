@@ -50,7 +50,8 @@ export function SignInForm() {
       setCookie("token", user.token)
       setCookie("role", user.role)
 
-      router.push("/")
+      await router.push("/")
+      router.reload()
     }
   }
 
