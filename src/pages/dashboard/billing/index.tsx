@@ -74,8 +74,11 @@ export default function BillingPage() {
           )}
           {!loading && currPlan && (
             <>
-              <h3 className="text-lg font-semibold sm:text-xl">
+              <h3 className="inline-flex items-center gap-2 text-lg font-semibold sm:text-xl">
                 {toSentenceCase(currPlan.type)}
+                {currPlan.type !== "free" && !currPlan.isSubscribed && (
+                  <Badge>Expired / Deactivated</Badge>
+                )}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {currPlan.isSubscribed && currPlan.expiryDate
@@ -97,9 +100,17 @@ export default function BillingPage() {
                 <span>
                   You have pending invoice for the{" "}
                   {toSentenceCase(invoice.type)} plan. Please wait for our admin
-                  to approve your subscription
+                  to approve your subscription.
                 </span>
               )}
+            </p>
+          )}
+          {!loading && currPlan?.type !== "free" && !currPlan?.isSubscribed && (
+            <p className="text-sm text-yellow-600">
+              <ExclamationTriangleIcon className="mr-2 inline h-4 w-4" />
+              <span>
+                Your plan has expired or has been deactivated by our admin.
+              </span>
             </p>
           )}
         </Card>

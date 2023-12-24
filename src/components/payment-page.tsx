@@ -50,6 +50,7 @@ export function PaymentPage({ invoice }: PaymentPageProps) {
 
                 toast.success("Copied to clipboard")
               }}
+              tabIndex={-1}
             >
               <QRCode value={paymentUrl.toString()} />
             </button>

@@ -168,7 +168,9 @@ function MainPage({
                   )}
                 </Button>
                 <PopoverClose asChild>
-                  <Button size="sm">No</Button>
+                  <Button size="sm" variant="secondary">
+                    No
+                  </Button>
                 </PopoverClose>
               </div>
             </PopoverContent>
