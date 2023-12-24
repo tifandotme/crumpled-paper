@@ -1,11 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import {
-  CounterClockwiseClockIcon,
-  DashboardIcon,
-  ExitIcon,
-} from "@radix-ui/react-icons"
+import { CounterClockwiseClockIcon, ExitIcon } from "@radix-ui/react-icons"
 import { toast } from "sonner"
 
 import { siteConfig } from "@/config"
@@ -90,9 +86,12 @@ export function SiteHeader() {
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="cursor-pointer">
-                        <DashboardIcon className="mr-2 h-4 w-4" />
-                        Dashboard
+                      <Link
+                        href="/dashboard/account"
+                        className="cursor-pointer"
+                      >
+                        <Icons.Avatar className="mr-2 h-4 w-4" />
+                        Account
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -105,12 +104,21 @@ export function SiteHeader() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="cursor-pointer">
-                        <CounterClockwiseClockIcon className="mr-2 h-4 w-4" />
-                        Recently Read
+                      <Link
+                        href="/dashboard/settings"
+                        className="cursor-pointer"
+                      >
+                        <Icons.Gear className="mr-2 h-4 w-4" />
+                        Settings
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/history" className="cursor-pointer">
+                      <CounterClockwiseClockIcon className="mr-2 h-4 w-4" />
+                      Recently Read
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <button

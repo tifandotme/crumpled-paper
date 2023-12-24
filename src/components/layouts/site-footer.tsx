@@ -1,7 +1,5 @@
-import { MoonIcon } from "@radix-ui/react-icons"
-
 import { siteConfig } from "@/config"
-import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/layouts/theme-toggle"
 import { Shell } from "@/components/shell"
 
 export function SiteFooter() {
@@ -27,11 +25,7 @@ export function SiteFooter() {
             </span>
           </div>
 
-          <div className="cursor-not-allowed space-x-2">
-            <Button size="sm" variant="ghost">
-              <MoonIcon className="h-4 w-4" />
-            </Button>
-          </div>
+          <ThemeToggle />
         </section>
       </Shell>
     </footer>

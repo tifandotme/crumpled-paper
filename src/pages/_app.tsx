@@ -1,10 +1,11 @@
 import React from "react"
-import { Toaster } from "sonner"
+import { ThemeProvider } from "next-themes"
 import { SWRConfig } from "swr"
 
 import type { AppPropsWithLayout } from "@/types/next"
 import { fetcher, getUser } from "@/lib/fetchers"
 import { useStore } from "@/lib/store"
+import { Toaster } from "@/components/ui/sonner"
 import { BreakpointIndicator } from "@/components/breakpoint-indicator"
 
 import "@/styles/globals.css"
@@ -50,7 +51,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
           revalidateOnFocus: false,
         }}
       >
-        {getLayout(<Component {...pageProps} />)}
+        <ThemeProvider attribute="class">
+          {getLayout(<Component {...pageProps} />)}
+        </ThemeProvider>
       </SWRConfig>
 
       <Toaster />
