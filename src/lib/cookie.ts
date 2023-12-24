@@ -2,7 +2,7 @@ import Cookies from "universal-cookie"
 
 const cookies = new Cookies(null, {
   path: "/",
-  secure: process.env.NODE_ENV === "production",
+  secure: process.env.VERCEL_ENV === "production",
 })
 
 export function getCookie(name: string): string | undefined {

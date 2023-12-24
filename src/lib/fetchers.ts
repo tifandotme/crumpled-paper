@@ -37,7 +37,7 @@ export async function getUser(payload: SignInInputs): Promise<Response<User>> {
     const user = (await res.json())[0]
 
     if (!user) {
-      throw new Error("User not found")
+      throw new Error("User not found or password is incorrect")
     }
 
     return {
@@ -161,6 +161,7 @@ export async function updatePost(
         ...data,
         image: convertedImage,
         likers: mode === "add" ? [] : undefined,
+        shareCount: mode === "add" ? 0 : undefined,
         updatedAt: new Date().toString(),
         createdAt: mode === "add" ? new Date().toString() : undefined,
         slug: mode === "add" ? slugify(data.title) : undefined,
@@ -171,6 +172,13 @@ export async function updatePost(
 
     if (!res.ok) {
       throw new Error("Failed to update a post")
+    }
+
+    // Revalidate path if edited
+    if (mode === "edit") {
+      const slug = (await res.json()).slug as string
+
+      await fetch(`/api/revalidate?slug=${slug}`)
     }
 
     return {
