@@ -31,7 +31,6 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  pageCount: number
   filterableColumns?: DataTableFilterableColumn<TData>[]
   searchableColumns?: DataTableSearchableColumn<TData>[]
 }
@@ -39,7 +38,6 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  pageCount,
   filterableColumns = [],
   searchableColumns = [],
 }: DataTableProps<TData, TValue>) {
@@ -52,15 +50,13 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    pageCount: pageCount ?? -1,
     state: {
       columnVisibility,
       columnFilters,
     },
 
-    onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
-
+    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

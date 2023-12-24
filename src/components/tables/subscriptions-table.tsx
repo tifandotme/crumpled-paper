@@ -2,7 +2,7 @@ import React from "react"
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import type { ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
-import { type KeyedMutator } from "swr"
+import type { KeyedMutator } from "swr"
 
 import type { User } from "@/types/api"
 import { subscriptionPlans } from "@/config"
@@ -171,13 +171,13 @@ export function SubscriptionsTable({
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
-                  const handleActivation = async () => {
+                  const handleDeactivation = async () => {
                     const { success } = await updateSubscription(
                       row.original.id,
                       {
                         expiryDate: row.original.expiryDate,
                         type: row.original.type,
-                        isSubscribed: true,
+                        isSubscribed: false,
                       },
                     )
 
@@ -186,7 +186,7 @@ export function SubscriptionsTable({
                     await mutate()
                   }
 
-                  toast.promise(handleActivation(), {
+                  toast.promise(handleDeactivation(), {
                     loading: "Processing...",
                     success: "Subscription deactivated",
                     error: "Failed to deactivate subscription. Try again later",
@@ -211,7 +211,6 @@ export function SubscriptionsTable({
     <DataTable
       columns={columns}
       data={data}
-      pageCount={Math.ceil(data.length / 10)}
       filterableColumns={[
         {
           id: "type",

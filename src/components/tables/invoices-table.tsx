@@ -217,7 +217,6 @@ export function InvoicesTable({
     <DataTable
       columns={columns}
       data={data}
-      pageCount={Math.ceil(data.length / 10)}
       filterableColumns={[
         {
           id: "status",

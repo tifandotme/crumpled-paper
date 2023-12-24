@@ -1,13 +1,10 @@
 import React from "react"
 import Link from "next/link"
-import { DotsHorizontalIcon } from "@radix-ui/react-icons"
+import { DotsHorizontalIcon, ExternalLinkIcon } from "@radix-ui/react-icons"
 import type { ColumnDef } from "@tanstack/react-table"
-import { toast } from "sonner"
-import { type KeyedMutator } from "swr"
 
 import type { Post } from "@/types/api"
 import { postCategories } from "@/config"
-import { deletePost } from "@/lib/fetchers"
 import { cn, formatDate, toSentenceCase } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,16 +14,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-interface PostsTableProps<TData = Post[]> {
-  data: TData
-  mutate: KeyedMutator<TData>
+interface PostsTableProps {
+  data: Post[]
 }
 
-export function PostsTable({ data: posts, mutate }: PostsTableProps) {
+export function PostsTable({ data: posts }: PostsTableProps) {
   const data = posts.map((post) => ({
     id: post.id,
     title: post.title,
@@ -133,8 +128,13 @@ export function PostsTable({ data: posts, mutate }: PostsTableProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[130px]">
               <DropdownMenuItem asChild>
-                <Link href={`/${row.original.slug}`} target="_blank">
+                <Link
+                  href={`/${row.original.slug}`}
+                  target="_blank"
+                  className="flex justify-between"
+                >
                   View
+                  <ExternalLinkIcon className="ml-1.5 h-3.5 w-3.5" />
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -142,40 +142,18 @@ export function PostsTable({ data: posts, mutate }: PostsTableProps) {
                   Edit
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => {
-                  const handleDeletion = async () => {
-                    const { success } = await deletePost(row.original.id)
-
-                    if (!success) throw new Error()
-
-                    await mutate()
-                  }
-
-                  toast.promise(handleDeletion(), {
-                    loading: "Deleting post...",
-                    success: "Post deleted successfully",
-                    error: "Failed to delete post",
-                  })
-                }}
-              >
-                Delete
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ],
-    [mutate],
+    [],
   )
 
   return (
     <DataTable
       columns={columns}
       data={data}
-      pageCount={Math.ceil(data.length / 10)}
       filterableColumns={[
         {
           id: "isPremium",
