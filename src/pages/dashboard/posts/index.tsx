@@ -7,14 +7,12 @@ import { PostsLayout } from "@/components/layouts/dashboard-posts"
 import { PostsTable } from "@/components/tables/posts-table"
 
 export default function PostsPage() {
-  const { data, isLoading, mutate } = useSWR(
-    "/posts?_sort=createdAt&_order=desc",
-  )
+  const { data, isLoading } = useSWR("/posts?_sort=createdAt&_order=desc")
 
   return (
     <div className="space-y-6 overflow-auto">
       {isLoading && <DataTableSkeleton columnCount={5} />}
-      {!isLoading && data && <PostsTable data={data} mutate={mutate} />}
+      {!isLoading && data && <PostsTable data={data} />}
     </div>
   )
 }

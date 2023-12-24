@@ -10,20 +10,32 @@ import {
   DiscordLogoIcon,
   InstagramLogoIcon,
   LinkedInLogoIcon,
+  MagnifyingGlassIcon,
   StarFilledIcon,
   TwitterLogoIcon,
 } from "@radix-ui/react-icons"
 import useSWRInfinite from "swr/infinite"
 
 import type { Post } from "@/types/api"
-import { footerLinks, postCategories, type PostCategories } from "@/config"
+import {
+  footerLinks,
+  postCategories,
+  siteConfig,
+  type PostCategories,
+} from "@/config"
 import { useStore } from "@/lib/store"
-import { cn, formatDate, toSentenceCase, updateQueryParams } from "@/lib/utils"
-import useIntersection from "@/hooks/use-intersection"
+import {
+  cn,
+  formatDate,
+  getBase64,
+  toSentenceCase,
+  updateQueryParams,
+} from "@/lib/utils"
+import { useIntersection } from "@/hooks/use-intersection"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -148,7 +160,7 @@ export default function HomePage({
           <TrendingPosts />
         </Card>
 
-        <div className="mb-4 items-center space-x-4">
+        <div className="mb-4 flex flex-wrap items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -216,7 +228,7 @@ export default function HomePage({
           </DropdownMenu>
           <Toggle
             size="lg"
-            className="px-8 hover:text-foreground data-[state=on]:text-yellow-500"
+            className="border px-8 hover:text-foreground data-[state=on]:text-yellow-500"
             defaultPressed={premiumState === "true"}
             onPressedChange={(state) =>
               updateQueryParams(router, { premium: String(state) })
@@ -226,7 +238,7 @@ export default function HomePage({
           </Toggle>
         </div>
 
-        <div className="space-y-4">
+        <div className="lg:space-y-4">
           {posts.map((post, idx) => (
             <React.Fragment key={post.id}>
               {idx % PAGE_SIZE === 0 && idx !== 0 && (
@@ -237,10 +249,15 @@ export default function HomePage({
                 </div>
               )}
               <Link key={post.id} href={`/${post.slug}`} className="block">
-                <article className="flex flex-col gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
-                  <div className="flex gap-4">
+                <article
+                  className={cn(
+                    "flex flex-col gap-4 border-b bg-card px-2 py-6 text-card-foreground lg:rounded-lg lg:border lg:p-6 lg:shadow-sm",
+                    idx === posts.length - 1 && "mb-2 border-0",
+                  )}
+                >
+                  <div className="flex flex-col-reverse gap-4 md:flex-row">
                     <div className="w-full">
-                      <h2 className="mb-2 text-2xl font-bold tracking-tight">
+                      <h2 className="mb-2 text-xl font-bold tracking-tight lg:text-2xl">
                         {post.title}
                       </h2>
                       <p className="line-clamp-3">{post.content}</p>
@@ -248,16 +265,23 @@ export default function HomePage({
                     <div className="min-w-[180px]">
                       <AspectRatio ratio={16 / 10}>
                         <Image
-                          className="absolute h-[112.5px] w-[180px] rounded-lg object-cover"
-                          width="1600"
-                          height="1000"
+                          className="aspect-[16/10] rounded-lg object-cover"
+                          width={1600}
+                          height={1000}
                           src={post.image}
-                          alt="thumbnail"
+                          alt={"Post image of " + post.title}
+                          placeholder={`data:image/svg+xml;base64,${getBase64(
+                            180,
+                            112.5,
+                          )}`}
+                          sizes="(max-width: 768px) 90vw, 33vw"
+                          quality={85}
+                          loading="lazy"
                         />
                       </AspectRatio>
                     </div>
                   </div>
-                  <div className="flex justify-between gap-4 text-muted-foreground">
+                  <div className="flex flex-col justify-between gap-4 text-muted-foreground md:flex-row">
                     <div className="inline-flex items-center gap-2">
                       <time dateTime={post.updatedAt}>
                         {formatDate(post.updatedAt)}
@@ -286,7 +310,7 @@ export default function HomePage({
             Array.from({ length: PAGE_SIZE }).map((_, idx) => (
               <article
                 key={idx}
-                className="flex gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm"
+                className="flex flex-col-reverse gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm md:flex-row"
               >
                 <div className="flex w-full flex-col gap-4">
                   <Skeleton className="h-6 w-full" />
@@ -336,7 +360,17 @@ const Sidebar = React.memo(function Sidebar() {
       const windowHeight = window.innerHeight ?? 0
       const sidebarHeight = sidebarRef.current?.offsetHeight ?? 0
 
-      top.current = windowHeight - sidebarHeight
+      /**
+       * This determine whether the sticky sidebar will stick to the bottom or top of the page,
+       * depending on whether the sidebar is partially in view or not.
+       *
+       * 64px comes from header height, 32px comes from paddingY of Shell component in MainPage
+       */
+      if (windowHeight - 150 < sidebarHeight) {
+        top.current = windowHeight - sidebarHeight - 32
+      } else {
+        top.current = 64 + 32
+      }
     } else {
       setIsSticky(false)
     }
@@ -349,21 +383,46 @@ const Sidebar = React.memo(function Sidebar() {
         "col-span-4 hidden w-full space-y-4 xl:block",
         isSticky && "sticky",
       )}
-      style={{ top: top.current - 32 }}
-      // 32 comes from padding-bottom of Shell component in HomePage
+      style={{ top: top.current }}
     >
       {!loading && !user?.subscription.isSubscribed && (
-        <Card className="flex flex-col items-center gap-7 p-6">
-          <StarFilledIcon className="h-14 w-14 text-yellow-600" />
+        <Card className="flex flex-col items-center gap-6 p-6">
+          <div className="flex items-center">
+            <StarFilledIcon className="h-20 w-20 translate-x-6 text-accent-premium" />
+            <MagnifyingGlassIcon className="h-20 w-20 -translate-x-6" />
+          </div>
           <span className="text-center">
-            Enjoy premium content by subscribing to a premium plan
+            Enjoy more perks: Subscribe to our premium plan today.
           </span>
           <div className="space-x-2">
-            <Button>Upgrade Now</Button>
-            <Button variant="outline">Explore Plans</Button>
+            <Button asChild>
+              <Link href="/dashboard/billing">Upgrade Now</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/billing">Explore Plans</Link>
+            </Button>
           </div>
         </Card>
       )}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Recommended Topics</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-3">
+          {postCategories
+            .filter((category) => category !== "uncategorized")
+            .map((category) => (
+              <Link key={category} href={`?category=${category}`}>
+                <Badge
+                  variant="secondary"
+                  className="px-3 py-1 text-sm font-medium"
+                >
+                  {toSentenceCase(category)}
+                </Badge>
+              </Link>
+            ))}
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">Trending Posts</CardTitle>
@@ -434,7 +493,7 @@ const Sidebar = React.memo(function Sidebar() {
               &bull;
             </span>
             <span className="text-muted-foreground">
-              © {new Date().getFullYear()} QPost
+              © {new Date().getFullYear()} {siteConfig.name}
             </span>
           </div>
         </div>
