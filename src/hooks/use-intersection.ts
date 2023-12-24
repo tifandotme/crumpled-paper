@@ -1,13 +1,13 @@
-import { useEffect, useState, type RefObject } from "react"
+import React, { type RefObject } from "react"
 
-const useIntersection = (
+export function useIntersection(
   ref: RefObject<HTMLElement>,
   options: IntersectionObserverInit,
-): IntersectionObserverEntry | null => {
+): IntersectionObserverEntry | null {
   const [intersectionObserverEntry, setIntersectionObserverEntry] =
-    useState<IntersectionObserverEntry | null>(null)
+    React.useState<IntersectionObserverEntry | null>(null)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (ref.current && typeof IntersectionObserver === "function") {
       const handler = (entries: IntersectionObserverEntry[]) => {
         setIntersectionObserverEntry(entries[0] ?? null)
@@ -28,5 +28,3 @@ const useIntersection = (
 
   return intersectionObserverEntry
 }
-
-export default useIntersection
