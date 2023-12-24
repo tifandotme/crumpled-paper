@@ -6,8 +6,8 @@ import type {
 } from "@/types"
 
 export const siteConfig: SiteConfig = {
-  name: "QPost",
-  description: "",
+  name: "Crumpled Paper",
+  description: "Where great ideas begin.",
 }
 
 export const dashboardConfig: DashboardConfig = {

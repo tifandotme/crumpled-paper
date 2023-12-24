@@ -3,11 +3,13 @@ import type {
   GetStaticProps,
   InferGetStaticPropsType,
 } from "next"
+import Head from "next/head"
 import Image from "next/image"
 import Link from "next/link"
 import Balancer from "react-wrap-balancer"
 
 import type { Post } from "@/types/api"
+import { siteConfig } from "@/config"
 import { getPlaceholder } from "@/lib/plaiceholder"
 import { useStore } from "@/lib/store"
 import { formatDate, readingTime, toSentenceCase } from "@/lib/utils"
@@ -30,7 +32,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
   return {
     paths,
-    fallback: false,
+    fallback: "blocking", // server render page when path doesn't exists
   }
 }
 
@@ -68,6 +70,10 @@ export default function PostPage({
 
   return (
     <>
+      <Head>
+        <title>{`${post.title} - ${siteConfig.name}`}</title>
+      </Head>
+
       <section className="mx-auto mb-10 flex max-w-screen-md lg:max-w-screen-lg">
         <AspectRatio ratio={16 / 9}>
           <Image
@@ -79,6 +85,7 @@ export default function PostPage({
             blurDataURL={placeholder ?? undefined}
             quality={90}
             className="absolute z-10 aspect-[16/9] object-cover"
+            priority={true}
           />
         </AspectRatio>
       </section>
@@ -101,7 +108,7 @@ export default function PostPage({
           </Balancer>
         </div>
 
-        <div className="flex w-full items-center justify-center gap-2 text-muted-foreground">
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 text-muted-foreground">
           <time dateTime={post.updatedAt}>{formatDate(post.updatedAt)}</time>
           <span className="select-none text-xs text-muted-foreground">
             &bull;

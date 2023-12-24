@@ -1,8 +1,9 @@
+import Head from "next/head"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { ChevronRightIcon } from "@radix-ui/react-icons"
 
-import { dashboardConfig } from "@/config"
+import { dashboardConfig, siteConfig } from "@/config"
 import { useStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -13,21 +14,29 @@ import { SiteHeader } from "@/components/layouts/site-header"
 
 export function DashboardLayout({ children }: React.PropsWithChildren) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+    <>
+      <Head>
+        <title>{`Dashboard - ${siteConfig.name}`}</title>
+      </Head>
 
-      <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
-        <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
-          <ScrollArea className="py-6 pr-6 lg:py-8">
-            <Sidebar />
-          </ScrollArea>
-        </aside>
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
 
-        <main className="flex w-full flex-col overflow-hidden">{children}</main>
+        <div className="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+          <aside className="fixed top-14 z-30 -ml-2 hidden h-[calc(100vh-3.5rem)] w-full shrink-0 overflow-y-auto border-r md:sticky md:block">
+            <ScrollArea className="py-6 pr-6 lg:py-8">
+              <Sidebar />
+            </ScrollArea>
+          </aside>
+
+          <main className="flex w-full flex-col overflow-hidden">
+            {children}
+          </main>
+        </div>
+
+        <SiteFooter />
       </div>
-
-      <SiteFooter />
-    </div>
+    </>
   )
 }
 

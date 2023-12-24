@@ -1,5 +1,6 @@
 import { MoonIcon } from "@radix-ui/react-icons"
 
+import { siteConfig } from "@/config"
 import { Button } from "@/components/ui/button"
 import { Shell } from "@/components/shell"
 
@@ -8,7 +9,7 @@ export function SiteFooter() {
     <footer className="w-full border-t bg-background">
       <Shell>
         <section className="flex items-center justify-between">
-          <div className="space-x-2 text-sm">
+          <div className="flex flex-wrap gap-2 text-sm">
             <a href="#" className="hover:underline">
               Privacy
             </a>
@@ -22,7 +23,7 @@ export function SiteFooter() {
               &bull;
             </span>
             <span className="text-muted-foreground">
-              © {new Date().getFullYear()} QPost
+              © {new Date().getFullYear()} {siteConfig.name}
             </span>
           </div>
 

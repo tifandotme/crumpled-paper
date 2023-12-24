@@ -1,11 +1,15 @@
 import { Head, Html, Main, NextScript } from "next/document"
 
+import { siteConfig } from "@/config"
 import { fonts } from "@/lib/fonts"
 
 export default function Document() {
   return (
     <Html lang="en">
-      <Head />
+      <Head>
+        <link rel="icon" href="favicon.svg" />
+        <meta name="description" content={siteConfig.description} />
+      </Head>
       <body className={fonts.map((font) => font.className).join(" ")}>
         <Main />
         <NextScript />
