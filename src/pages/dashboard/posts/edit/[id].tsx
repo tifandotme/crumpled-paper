@@ -1,3 +1,4 @@
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next"
 import { useRouter } from "next/router"
 import useSWR from "swr"
 
@@ -14,10 +15,29 @@ import { PostForm } from "@/components/forms/post-form"
 import { DashboardLayout } from "@/components/layouts/dashboard"
 import { PostsLayout } from "@/components/layouts/dashboard-posts"
 
-export default function EditPostPage() {
+export const getServerSideProps: GetServerSideProps<{ id: string }> = async (
+  context,
+) => {
+  const id = context.params?.id as string | undefined
+
+  if (!id || isNaN(Number(id))) {
+    return {
+      notFound: true,
+    }
+  }
+
+  return {
+    props: {
+      id,
+    },
+  }
+}
+
+export default function EditPostPage({
+  id,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter()
 
-  const id = router.query.id as string
   const { data, isLoading } = useSWR<Post>(`/posts/${id}`, {
     onError: () => {
       router.push("/dashboard/posts")
@@ -28,23 +48,34 @@ export default function EditPostPage() {
     <>
       {isLoading && (
         <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-6 w-1/4" />
+          <CardHeader className="space-y-1">
+            <Skeleton className="h-8 w-1/5" />
           </CardHeader>
           <CardContent>
-            <div className="grid w-full max-w-xl gap-4">
+            <div className="grid w-full max-w-2xl gap-5">
               <div className="space-y-2.5">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-6" />
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-10" />
               </div>
               <div className="space-y-2.5">
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-44" />
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-[218px]" />
               </div>
+              <div className="flex gap-2">
+                <div className="w-full space-y-2.5">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-10" />
+                </div>
+                <div className="w-full space-y-2.5">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-10" />
+                </div>
+              </div>
+              <Skeleton className="h-[72px]" />
             </div>
           </CardContent>
           <CardFooter>
-            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-24" />
           </CardFooter>
         </Card>
       )}
