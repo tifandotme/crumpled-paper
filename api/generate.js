@@ -1,19 +1,17 @@
 import fs from "node:fs"
 import path from "node:path"
-import url from "node:url"
 import { faker } from "@faker-js/faker"
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
-const dbPath = path.join(__dirname, "db.json")
+import { dbPath } from "./utils.js"
 
-const USER_COUNT = 100
+const USER_COUNT = 200
 const POST_COUNT = 100
 
 const admin = [
   {
     id: 1,
     name: "Admin",
-    email: "admin@qpost.com",
+    email: "admin@example.com",
     password: "Qq12345678-",
     address: faker.location.streetAddress(false),
     phone: faker.phone.number(),
@@ -32,10 +30,11 @@ const users = Array.from({ length: USER_COUNT }, (_, i) => {
   const firstName = faker.person.firstName()
   const lastName = faker.person.lastName()
   const subType = faker.helpers.arrayElement(["free", "monthly", "yearly"])
+
   return {
     id: i + 2,
     name: `${firstName} ${lastName}`,
-    email: faker.internet.exampleEmail({ firstName, lastName }),
+    email: faker.internet.exampleEmail({ firstName, lastName }).toLowerCase(),
     password: "Qq12345678-",
     address: faker.location.streetAddress(false),
     phone: faker.phone.number(),
@@ -100,6 +99,6 @@ try {
   console.log("db.json generated")
 
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2))
-} catch (error) {
-  console.error(error.message)
+} catch (err) {
+  console.error(err.message)
 }
