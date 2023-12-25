@@ -11,7 +11,8 @@
     "format": "prettier --check --log-level warn --cache --cache-strategy content '**/*.{js,ts,tsx,css}'",
     "format:write": "prettier --write --log-level warn --cache --cache-strategy content '**/*.{js,ts,tsx,css}'",
     "check-all": "npm run typecheck && npm run lint && npm run format",
-    "test": "vitest"
+    "test": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
@@ -61,6 +62,7 @@
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.1.0",
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
     "eslint": "^8.56.0",
