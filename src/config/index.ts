@@ -22,6 +22,11 @@ export const dashboardConfig: DashboardConfig = {
       href: "/dashboard/billing",
       icon: "CreditCard",
     },
+    {
+      title: "Settings",
+      href: "/dashboard/settings",
+      icon: "Gear",
+    },
   ],
   sidebarNavAdmin: [
     { title: "Posts", href: "/dashboard/posts", icon: "File" },
@@ -49,24 +54,26 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     id: "free",
     name: "Free",
     description: "Perfect for small businesses that want to sell online.",
-    features: ["Create up to 1 store", "Create up to 20 products"],
+    features: ["Start leveling up your knowledge"],
     price: 0,
   },
   {
     id: "monthly",
     name: "Monthly",
     description: "Perfect for midsize businesses that want to sell online.",
-    features: ["Create up to 2 store", "Create up to 20 products per store"],
+    features: [
+      "Unlock premium posts",
+      "Read offline",
+      "Reward creators",
+      "Connect with the community",
+    ],
     price: 39000,
   },
   {
     id: "yearly",
     name: "Yearly",
     description: "Perfect for big businesses that want to sell online.",
-    features: [
-      "Receive 2 months for free",
-      "Create up to 20 products per store",
-    ],
+    features: ["Same as Monthly plan", "2 months off"],
     price: 390000,
   },
 ]

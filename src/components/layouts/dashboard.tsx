@@ -7,7 +7,6 @@ import { dashboardConfig, siteConfig } from "@/config"
 import { useStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { Icons } from "@/components/icons"
 import { SiteFooter } from "@/components/layouts/site-footer"
 import { SiteHeader } from "@/components/layouts/site-header"
@@ -69,7 +68,9 @@ export function Sidebar() {
       })}
       {user?.role === "admin" && (
         <>
-          <Separator />
+          <h3 className="mt-5 select-none text-xs uppercase tracking-wide text-muted-foreground">
+            Admin Panel
+          </h3>
           {dashboardConfig.sidebarNavAdmin.map((item) => {
             const Icon = item.icon ? Icons[item.icon] : ChevronRightIcon
 

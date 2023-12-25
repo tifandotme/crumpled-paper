@@ -1,8 +1,8 @@
 import {
   AvatarIcon,
-  CounterClockwiseClockIcon,
   CrumpledPaperIcon,
   FileIcon,
+  GearIcon,
   PersonIcon,
 } from "@radix-ui/react-icons"
 
@@ -98,6 +98,6 @@ export const Icons = {
   ),
   File: FileIcon,
   Person: PersonIcon,
-  Subscription: CounterClockwiseClockIcon,
   Avatar: AvatarIcon,
+  Gear: GearIcon,
 }
