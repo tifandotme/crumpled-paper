@@ -6,7 +6,7 @@ import type { KeyedMutator } from "swr"
 
 import type { ExpandedTransaction, Transaction } from "@/types/api"
 import { updateSubscription, updateTransaction } from "@/lib/fetchers"
-import { cn, formatPrice, toSentenceCase } from "@/lib/utils"
+import { cn, formatDate, formatPrice, toSentenceCase } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table/data-table"
@@ -44,12 +44,17 @@ export function InvoicesTable({
     () => [
       {
         accessorKey: "name",
+        minSize: 200,
+        maxSize: 200,
+        enableHiding: false,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Name" />
         ),
       },
       {
         accessorKey: "email",
+        minSize: 250,
+        maxSize: 250,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Email" />
         ),
@@ -70,6 +75,7 @@ export function InvoicesTable({
       {
         accessorKey: "type",
         enableSorting: false,
+        minSize: 110,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Plan" />
         ),
@@ -86,6 +92,7 @@ export function InvoicesTable({
       {
         accessorKey: "status",
         enableSorting: false,
+        minSize: 110,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Status" />
         ),
@@ -110,18 +117,16 @@ export function InvoicesTable({
       },
       {
         accessorKey: "createdAt",
+        minSize: 190,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Created" />
         ),
         cell: ({ cell }) => {
           const date = cell.getValue() as Data["createdAt"]
 
-          const formattedDate = new Intl.DateTimeFormat("en-US", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(new Date(date))
-
-          return <span className="whitespace-nowrap">{formattedDate}</span>
+          return (
+            <span className="whitespace-nowrap">{formatDate(date, true)}</span>
+          )
         },
         filterFn: (row, id, value) => {
           return value.includes(row.getValue(id))

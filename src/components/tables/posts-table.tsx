@@ -1,7 +1,7 @@
 import React from "react"
 import Link from "next/link"
 import { DotsHorizontalIcon, ExternalLinkIcon } from "@radix-ui/react-icons"
-import type { ColumnDef } from "@tanstack/react-table"
+import { type ColumnDef } from "@tanstack/react-table"
 
 import type { Post } from "@/types/api"
 import { postCategories } from "@/config"
@@ -16,6 +16,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface PostsTableProps {
   data: Post[]
@@ -39,13 +45,25 @@ export function PostsTable({ data: posts }: PostsTableProps) {
     () => [
       {
         accessorKey: "title",
+        enableHiding: false,
+        maxSize: 350,
         header: ({ column }) => (
-          <DataTableColumnHeader
-            column={column}
-            title="Title"
-            className="min-w-[28ch]"
-          />
+          <DataTableColumnHeader column={column} title="Title" />
         ),
+        cell: ({ cell }) => {
+          const title = cell.getValue() as Data["title"]
+
+          return (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-default">{title}</span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{title}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
+        },
       },
       {
         accessorKey: "isPremium",
@@ -75,6 +93,7 @@ export function PostsTable({ data: posts }: PostsTableProps) {
       {
         accessorKey: "category",
         enableSorting: false,
+        minSize: 140,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Category" />
         ),
@@ -93,24 +112,26 @@ export function PostsTable({ data: posts }: PostsTableProps) {
       },
       {
         accessorKey: "updatedAt",
+        minSize: 190,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Updated" />
         ),
         cell: ({ cell }) => {
           const date = cell.getValue() as Data["updatedAt"]
 
-          return <span>{formatDate(date)}</span>
+          return <span>{formatDate(date, true)}</span>
         },
       },
       {
         accessorKey: "createdAt",
+        minSize: 190,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Created" />
         ),
         cell: ({ cell }) => {
           const date = cell.getValue() as Data["createdAt"]
 
-          return <span>{formatDate(date)}</span>
+          return <span>{formatDate(date, true)}</span>
         },
       },
       {

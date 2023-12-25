@@ -45,12 +45,17 @@ export function SubscriptionsTable({
     () => [
       {
         accessorKey: "name",
+        minSize: 200,
+        maxSize: 200,
+        enableHiding: false,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Name" />
         ),
       },
       {
         accessorKey: "email",
+        minSize: 250,
+        maxSize: 250,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Email" />
         ),
@@ -58,6 +63,7 @@ export function SubscriptionsTable({
       {
         accessorKey: "type",
         enableSorting: false,
+        minSize: 110,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Plan" />
         ),
@@ -77,6 +83,7 @@ export function SubscriptionsTable({
       {
         accessorKey: "status",
         enableSorting: false,
+        minSize: 110,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Status" />
         ),
@@ -95,6 +102,7 @@ export function SubscriptionsTable({
       },
       {
         accessorKey: "expiryDate",
+        minSize: 190,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Expiry Date" />
         ),
@@ -105,11 +113,12 @@ export function SubscriptionsTable({
             return <span>-</span>
           }
 
-          return <span>{formatDate(date)}</span>
+          return <span>{formatDate(date, true)}</span>
         },
       },
       {
         accessorKey: "phone",
+        maxSize: 180,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Phone" />
         ),
@@ -121,6 +130,7 @@ export function SubscriptionsTable({
       },
       {
         accessorKey: "address",
+        maxSize: 180,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Address" />
         ),
@@ -236,6 +246,10 @@ export function SubscriptionsTable({
         },
       ]}
       searchableColumns={[
+        {
+          id: "name",
+          title: "Name",
+        },
         {
           id: "email",
           title: "Email",
