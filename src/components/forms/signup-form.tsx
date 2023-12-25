@@ -139,7 +139,7 @@ export function SignUpForm() {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="+628 123456" {...field} />
+                <Input type="text" placeholder="+62 8888888" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
