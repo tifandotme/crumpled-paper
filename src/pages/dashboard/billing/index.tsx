@@ -25,6 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icons } from "@/components/icons"
 import { DashboardLayout } from "@/components/layouts/dashboard"
 import { ManageSubscriptionForm } from "@/components/manage-subscription-form"
 import {
@@ -157,7 +158,9 @@ export default function BillingPage() {
               </CardContent>
               <CardFooter className="pt-4">
                 {invoice === undefined ? (
-                  <Skeleton className="h-10 w-full" />
+                  <Button className="w-full" disabled={true}>
+                    <Icons.Spinner className="h-4 w-4 animate-spin" />
+                  </Button>
                 ) : (
                   <ManageSubscriptionForm
                     plan={plan}

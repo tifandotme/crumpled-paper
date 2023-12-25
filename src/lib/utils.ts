@@ -26,9 +26,10 @@ export function formatPrice(price: number | string) {
   }).format(Number(price))
 }
 
-export function formatDate(date: string | Date) {
+export function formatDate(date: string | Date, showTime?: boolean) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
+    ...(showTime && { timeStyle: "short" }),
   }).format(new Date(date))
 }
 
@@ -115,7 +116,7 @@ export async function convertToCloudinaryURL(url: string) {
 }
 
 /**
- * Get placeholder shimmer for `next/image`
+ * Get shimmer effect placeholder for `next/image`
  *
  * Alternative to `plaiceholder`, when SSR is not possible
  */

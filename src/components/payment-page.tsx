@@ -3,7 +3,7 @@ import { toast } from "sonner"
 
 import type { Transaction } from "@/types/api"
 import { useStore } from "@/lib/store"
-import { formatPrice } from "@/lib/utils"
+import { formatDate, formatPrice } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import {
@@ -60,10 +60,7 @@ export function PaymentPage({ invoice }: PaymentPageProps) {
       </TooltipProvider>
       <span className="mb-2 text-right text-sm text-muted-foreground">
         Created at&nbsp;
-        {new Intl.DateTimeFormat("en-US", {
-          timeStyle: "short",
-          dateStyle: "medium",
-        }).format(new Date(invoice.createdAt))}
+        {formatDate(invoice.createdAt)}
       </span>
 
       <DialogFooter className="sm:justify-end">
