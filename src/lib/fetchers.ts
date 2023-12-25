@@ -1,4 +1,5 @@
 import type {
+  EditProfileInputs,
   PostInputs,
   Response,
   SignInInputs,
@@ -93,6 +94,39 @@ export async function registerUser(payload: SignUpInputs): Promise<Response> {
     return {
       success: true,
       message: "Signed up successfully",
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : "Something went wrong",
+    }
+  }
+}
+
+export async function updateProfile(
+  userId: number,
+  payload: Partial<EditProfileInputs>,
+): Promise<Response<User>> {
+  try {
+    const url = new URL(`/users/${userId}`, process.env.NEXT_PUBLIC_DB_URL)
+    const options: RequestInit = {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+
+    const res = await fetch(url, options)
+
+    if (!res.ok) {
+      throw new Error("Failed to update profile")
+    }
+
+    return {
+      success: true,
+      message: "Profile updated",
+      data: await res.json(),
     }
   } catch (err) {
     return {

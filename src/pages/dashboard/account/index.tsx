@@ -1,4 +1,3 @@
-import { UserProfile } from "@/components/dashboard/user-profile"
 import { DashboardLayout } from "@/components/layouts/dashboard"
 import {
   PageHeader,
@@ -6,6 +5,7 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import { Shell } from "@/components/shell"
+import { UserProfile } from "@/components/user-profile"
 
 export default function AccountPage() {
   return (
