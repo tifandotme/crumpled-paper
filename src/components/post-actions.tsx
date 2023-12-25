@@ -131,7 +131,7 @@ export function PostActions({ post }: PostActionsProps) {
               <Button
                 size="sm"
                 variant="ghost"
-                className="w-full justify-start focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="w-full justify-start font-normal focus-visible:ring-0 focus-visible:ring-offset-0"
                 asChild
               >
                 <a

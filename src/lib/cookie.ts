@@ -1,9 +1,6 @@
-import Cookies from "universal-cookie"
+import Cookies from "js-cookie"
 
-const cookies = new Cookies(null, {
-  path: "/",
-  secure: process.env.VERCEL_ENV === "production",
-})
+const cookies = Cookies.withAttributes({ sameSite: "strict" })
 
 export function getCookie(name: string): string | undefined {
   return cookies.get(name)
@@ -14,5 +11,5 @@ export function setCookie(name: string, value: string) {
 }
 
 export function removeCookie(name: string) {
-  cookies.remove(name, { path: "/" })
+  cookies.remove(name)
 }

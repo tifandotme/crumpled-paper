@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { CounterClockwiseClockIcon, ExitIcon } from "@radix-ui/react-icons"
+import { ExitIcon } from "@radix-ui/react-icons"
 import { toast } from "sonner"
 
 import { siteConfig } from "@/config"
@@ -113,12 +113,6 @@ export function SiteHeader() {
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link href="/history" className="cursor-pointer">
-                      <CounterClockwiseClockIcon className="mr-2 h-4 w-4" />
-                      Recently Read
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <button
