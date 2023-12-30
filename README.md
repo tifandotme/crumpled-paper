@@ -25,6 +25,9 @@ Or, start a production server by running
 ```
 npm run start:db
 npm run build
+npm run start
 ```
+
+To login as admin, use the appropriate email and password defined in `./api/generate.js`.
 
 By default, the app will run on http://localhost:3000 and the `json-server` will run on http://localhost:3100. To change this, modify `.env`.
